@@ -1,1 +1,22 @@
 @import "tailwindcss";
+
+/* Prevent overscroll behavior that causes white space */
+html {
+  overscroll-behavior: none;
+  overflow-x: hidden;
+}
+
+body {
+  overscroll-behavior: none;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  background: #0f172a;
+  /* Fallback background color matching your gradient */
+}
+
+/* Ensure root container fills viewport */
+#root {
+  min-height: 100vh;
+  overflow-x: hidden;
+}
