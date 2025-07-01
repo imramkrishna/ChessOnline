@@ -1,10 +1,11 @@
 import { WebSocketServer } from "ws";
-const wss = new WebSocketServer({ port: 8000 })
-
+import { GameManager } from "./GameManager";
+const wss = new WebSocketServer({ port: 8080 })
+const gameManager = new GameManager();
 wss.on("connection", function connection(ws) {
-    ws.on("error", console.error);
-    ws.on("message", function message(data) {
-        console.log("Received: ", data)
-    })
-    ws.send("something")
+    ws.on("error", (err) => {
+        console.error("WebSocket error:", err);
+    });
+    gameManager.addUser(ws)
+    ws.on("close", () => gameManager.removeUser(ws));
 })
