@@ -1,14 +1,12 @@
 import React from 'react'
-
+import { useNavigate } from 'react-router-dom'
 const Home = () => {
+    const navigate = useNavigate();
     const handleJoinRoom = () => {
-        // Add your join room logic here
-        console.log('Joining room...');
+        navigate("/game")
     }
 
     const handleCreateRoom = () => {
-        // Add your create room logic here
-        console.log('Creating room...');
     }
 
     return (
