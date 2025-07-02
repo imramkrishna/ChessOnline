@@ -1,7 +1,7 @@
 import type { Color, PieceSymbol, Square } from 'chess.js';
 import React from 'react'
 import { useState } from 'react';
-
+import { MOVE, GAME_OVER } from '../messages';
 const ChessBoard = ({ board, socket }: {
 
     board: ({
@@ -11,6 +11,7 @@ const ChessBoard = ({ board, socket }: {
     } | null)[][]
     socket: WebSocket | null
 }) => {
+    if (!socket) return <div className="text-red-500">Socket connection is not established.</div>;
     const [from, setFrom] = useState<String | null>(null);
     const [to, setTo] = useState<String | null>(null);
     // Chess piece Unicode symbols
@@ -67,7 +68,14 @@ const ChessBoard = ({ board, socket }: {
                                             if (from && to) {
                                                 // Handle move logic here
                                                 console.log(`Move from ${from} to ${to}`);
-                                                // Reset from/to after move
+                                                const response = socket.send(JSON.stringify({
+                                                    type: MOVE,
+                                                    move: {
+                                                        from: from,
+                                                        to: to
+                                                    }
+                                                }))
+                                                console.log("Response: ", response)
                                                 setFrom(null);
                                                 setTo(null);
                                             } else if (from) {
@@ -77,14 +85,7 @@ const ChessBoard = ({ board, socket }: {
                                                 // Set source square
                                                 setFrom(squareLabel);
                                             }
-                                            // Optionally send move to server
-                                            if (socket && from && to) {
-                                                socket.send(JSON.stringify({
-                                                    type: 'move',
-                                                    from: from,
-                                                    to: to,
-                                                }));
-                                            }
+
                                         }}
                                         key={`${rowIndex}-${colIndex}`}
                                         className={`

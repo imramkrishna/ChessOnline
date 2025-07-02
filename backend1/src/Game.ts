@@ -33,9 +33,10 @@ export class Game {
     }
     makeMove(socket: WebSocket, move: moveType) {
         try {
+            console.log("Making move:", move);
             this.board.move(move)
         } catch (e) {
-            console.error("Invalid move attempted:", move, e);
+            console.error("Invalid move attempted:", move);
             return;
         }
         if (this.board.isGameOver()) {
