@@ -23,6 +23,7 @@ const Game = () => {
         setGameStarted(false);
         setGameStatus('waiting');
         console.log('Leaving game...');
+        socket?.send(JSON.stringify({ type: GAME_OVER }));
     };
     useEffect(() => {
         if (!socket) {
@@ -178,7 +179,7 @@ const Game = () => {
 
                             {/* Chess Board Component */}
                             <div className="flex justify-center">
-                                <ChessBoard board={board} />
+                                <ChessBoard board={board} socket={socket} />
                             </div>
 
                             {/* Game Info Below Board */}

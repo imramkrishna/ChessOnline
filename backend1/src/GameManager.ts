@@ -37,6 +37,22 @@ export class GameManager {
                     game.makeMove(socket, message.move);
                 }
             }
+            if (message.type === "game_over") {
+                const game = this.games.find(game => game.player1 === socket || game.player2 === socket)
+                if (game) {
+                    game.player1.send(JSON.stringify({
+                        type: "game_over",
+                        message: "Game Over",
+                        winner: message.winner
+                    }));
+                    game.player2.send(JSON.stringify({
+                        type: "game_over",
+                        message: "Game Over",
+                        winner: message.winner
+                    }));
+                    this.games = this.games.filter(g => g !== game);
+                }
+            }
         })
     }
 }

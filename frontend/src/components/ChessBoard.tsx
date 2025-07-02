@@ -1,13 +1,18 @@
 import type { Color, PieceSymbol, Square } from 'chess.js';
 import React from 'react'
+import { useState } from 'react';
 
-const ChessBoard = ({ board }: {
+const ChessBoard = ({ board, socket }: {
+
     board: ({
         square: Square;
         type: PieceSymbol;
         color: Color;
     } | null)[][]
+    socket: WebSocket | null
 }) => {
+    const [from, setFrom] = useState<String | null>(null);
+    const [to, setTo] = useState<String | null>(null);
     // Chess piece Unicode symbols
     const pieceSymbols: Record<string, string> = {
         'wp': '♙', 'wr': '♖', 'wn': '♘', 'wb': '♗', 'wq': '♕', 'wk': '♔',
@@ -58,6 +63,29 @@ const ChessBoard = ({ board }: {
 
                                 return (
                                     <div
+                                        onClick={() => {
+                                            if (from && to) {
+                                                // Handle move logic here
+                                                console.log(`Move from ${from} to ${to}`);
+                                                // Reset from/to after move
+                                                setFrom(null);
+                                                setTo(null);
+                                            } else if (from) {
+                                                // Set destination square
+                                                setTo(squareLabel);
+                                            } else {
+                                                // Set source square
+                                                setFrom(squareLabel);
+                                            }
+                                            // Optionally send move to server
+                                            if (socket && from && to) {
+                                                socket.send(JSON.stringify({
+                                                    type: 'move',
+                                                    from: from,
+                                                    to: to,
+                                                }));
+                                            }
+                                        }}
                                         key={`${rowIndex}-${colIndex}`}
                                         className={`
                                             w-16 h-16 flex items-center justify-center relative cursor-pointer
