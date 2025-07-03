@@ -39,7 +39,17 @@ const Game = () => {
                     console.log("Game initialized.")
                     break;
                 case MOVE:
-                    console.log("move made")
+                    console.log("♟️ Move received from server:", message.payload);
+
+                    // Update the chess instance with the server's move
+                    try {
+                        const updatedChess = new Chess(message.board); // Use FEN from server
+                        setChess(updatedChess);
+                        setBoard(updatedChess.board());
+                        console.log("✅ Board updated from server");
+                    } catch (error) {
+                        console.error("❌ Error updating board:", error);
+                    }
                     break;
                 case GAME_OVER:
                     console.log("Game over")

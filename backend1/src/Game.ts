@@ -47,35 +47,35 @@ export class Game {
             }));
             return;
         }
-        if (game.board.moves.length % 2 == 0) {
-            game.player1.send(JSON.stringify({
+        if (this.board.moves.length % 2 == 0) {
+            this.player1.send(JSON.stringify({
                 type: MOVE,
-                payload: move,
-                board: game.board.fen(),
-                turn: game.board.turn()
+                move: move,
+                board: this.board.fen(),
+                turn: this.board.turn()
             }));
-            game.player2.send(JSON.stringify({
+            this.player2.send(JSON.stringify({
                 type: MOVE,
-                payload: move,
-                board: game.board.fen(),
-                turn: game.board.turn()
+                move: move,
+                board: this.board.fen(),
+                turn: this.board.turn()
             }));
         }
         else {
-            game.player2.send(JSON.stringify({
+            this.player2.send(JSON.stringify({
                 type: MOVE,
                 payload: move,
-                board: game.board.fen(),
-                turn: game.board.turn()
+                board: this.board.fen(),
+                turn: this.board.turn()
             }));
-            game.player1.send(JSON.stringify({
+            this.player1.send(JSON.stringify({
                 type: MOVE,
                 payload: move,
-                board: game.board.fen(),
-                turn: game.board.turn()
+                board: this.board.fen(),
+                turn: this.board.turn()
             }));
         }
-        game.moves.push(JSON.stringify(move));
+        this.moves.push(JSON.stringify(move));
     }
 
 }

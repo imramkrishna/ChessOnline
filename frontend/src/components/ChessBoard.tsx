@@ -83,7 +83,7 @@ const ChessBoard = ({ board, socket, chess, setBoard }: {
                                                         from: from,
                                                         to: squareLabel
                                                     })
-                                                    setBoard(chess.board());
+
                                                 } catch (error) {
                                                     console.error("Invalid move");
                                                 } finally {
