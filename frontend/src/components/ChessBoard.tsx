@@ -2,8 +2,9 @@ import type { Color, PieceSymbol, Square } from 'chess.js';
 import React from 'react'
 import { useState } from 'react';
 import { MOVE, GAME_OVER } from '../messages';
-const ChessBoard = ({ board, socket }: {
-
+const ChessBoard = ({ board, socket, chess, setBoard }: {
+    chess: any;
+    setBoard: (board: any) => void;
     board: ({
         square: Square;
         type: PieceSymbol;
@@ -60,8 +61,8 @@ const ChessBoard = ({ board, socket }: {
                         {board.map((row, rowIndex) => (
                             row.map((cell, colIndex) => {
                                 const isLight = (rowIndex + colIndex) % 2 === 0;
-                                const squareLabel1 = String.fromCharCode(65 + (colIndex % 8)) + "" + (8 - rowIndex) as Square;
-                                const squareLabel = squareLabel1.toLowerCase()
+                                const squareRepresentation = String.fromCharCode(65 + (colIndex % 8)) + "" + (8 - rowIndex) as Square;
+                                const squareLabel = squareRepresentation.toLowerCase()
 
                                 return (
                                     <div
@@ -69,17 +70,26 @@ const ChessBoard = ({ board, socket }: {
                                             if (!from) {
                                                 setFrom(squareLabel);
                                             } else {
-                                                console.log(`Move from ${from} to ${squareLabel}`);
-                                                const response = socket.send(JSON.stringify({
-                                                    type: MOVE,
-                                                    move: {
+                                                try {
+                                                    console.log(`Move from ${from} to ${squareLabel}`);
+                                                    socket.send(JSON.stringify({
+                                                        type: MOVE,
+                                                        move: {
+                                                            from: from,
+                                                            to: squareLabel
+                                                        }
+                                                    }))
+                                                    chess.move({
                                                         from: from,
                                                         to: squareLabel
-                                                    }
-                                                }))
-                                                console.log("Response: ", response)
-                                                setFrom(null);
-                                                setTo(null);
+                                                    })
+                                                    setBoard(chess.board());
+                                                } catch (error) {
+                                                    console.error("Invalid move");
+                                                } finally {
+                                                    setFrom(null);
+                                                    setTo(null);
+                                                }
                                             }
                                         }}
                                         key={`${rowIndex}-${colIndex}`}

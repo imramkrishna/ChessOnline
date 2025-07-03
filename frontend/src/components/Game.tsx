@@ -40,8 +40,6 @@ const Game = () => {
                     break;
                 case MOVE:
                     console.log("move made")
-                    chess.move(message.move);
-                    setBoard(message.board);
                     break;
                 case GAME_OVER:
                     console.log("Game over")
@@ -179,7 +177,7 @@ const Game = () => {
 
                             {/* Chess Board Component */}
                             <div className="flex justify-center">
-                                <ChessBoard board={board} socket={socket} />
+                                <ChessBoard setBoard={setBoard} chess={chess} board={board} socket={socket} />
                             </div>
 
                             {/* Game Info Below Board */}
