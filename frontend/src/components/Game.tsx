@@ -41,7 +41,7 @@ const Game = () => {
                 case MOVE:
                     console.log("move made")
                     chess.move(message.move);
-                    setBoard(chess.board());
+                    setBoard(message.board);
                     break;
                 case GAME_OVER:
                     console.log("Game over")

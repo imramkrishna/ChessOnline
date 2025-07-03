@@ -31,51 +31,51 @@ export class Game {
         }));
 
     }
-    makeMove(socket: WebSocket, move: moveType) {
+    makeMove(game: Game, move: moveType) {
         try {
             console.log("Making move:", move);
-            this.board.move(move)
+            game.board.move(move)
         } catch (e) {
             console.error("Invalid move attempted:", move);
             return;
         }
-        if (this.board.isGameOver()) {
-            this.player1.send(JSON.stringify({
+        if (game.board.isGameOver()) {
+            game.player1.send(JSON.stringify({
                 type: GAME_OVER,
                 message: "Game Over",
-                winner: this.board.turn() === 'w' ? 'Black' : 'White'
+                winner: game.board.turn() === 'w' ? 'Black' : 'White'
             }));
             return;
         }
-        if (this.board.moves.length % 2 == 0) {
-            this.player1.send(JSON.stringify({
+        if (game.board.moves.length % 2 == 0) {
+            game.player1.send(JSON.stringify({
                 type: MOVE,
                 payload: move,
-                board: this.board.fen(),
-                turn: this.board.turn()
+                board: game.board.fen(),
+                turn: game.board.turn()
             }));
-            this.player2.send(JSON.stringify({
+            game.player2.send(JSON.stringify({
                 type: MOVE,
                 payload: move,
-                board: this.board.fen(),
-                turn: this.board.turn()
+                board: game.board.fen(),
+                turn: game.board.turn()
             }));
         }
         else {
-            this.player2.send(JSON.stringify({
+            game.player2.send(JSON.stringify({
                 type: MOVE,
                 payload: move,
-                board: this.board.fen(),
-                turn: this.board.turn()
+                board: game.board.fen(),
+                turn: game.board.turn()
             }));
-            this.player1.send(JSON.stringify({
+            game.player1.send(JSON.stringify({
                 type: MOVE,
                 payload: move,
-                board: this.board.fen(),
-                turn: this.board.turn()
+                board: game.board.fen(),
+                turn: game.board.turn()
             }));
         }
-        this.moves.push(JSON.stringify(move));
+        game.moves.push(JSON.stringify(move));
     }
 
 }

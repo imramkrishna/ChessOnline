@@ -60,32 +60,27 @@ const ChessBoard = ({ board, socket }: {
                         {board.map((row, rowIndex) => (
                             row.map((cell, colIndex) => {
                                 const isLight = (rowIndex + colIndex) % 2 === 0;
-                                const squareLabel = getSquareLabel(rowIndex, colIndex);
+                                const squareLabel1 = String.fromCharCode(65 + (colIndex % 8)) + "" + (8 - rowIndex) as Square;
+                                const squareLabel = squareLabel1.toLowerCase()
 
                                 return (
                                     <div
                                         onClick={() => {
-                                            if (from && to) {
-                                                // Handle move logic here
-                                                console.log(`Move from ${from} to ${to}`);
+                                            if (!from) {
+                                                setFrom(squareLabel);
+                                            } else {
+                                                console.log(`Move from ${from} to ${squareLabel}`);
                                                 const response = socket.send(JSON.stringify({
                                                     type: MOVE,
                                                     move: {
                                                         from: from,
-                                                        to: to
+                                                        to: squareLabel
                                                     }
                                                 }))
                                                 console.log("Response: ", response)
                                                 setFrom(null);
                                                 setTo(null);
-                                            } else if (from) {
-                                                // Set destination square
-                                                setTo(squareLabel);
-                                            } else {
-                                                // Set source square
-                                                setFrom(squareLabel);
                                             }
-
                                         }}
                                         key={`${rowIndex}-${colIndex}`}
                                         className={`

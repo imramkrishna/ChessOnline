@@ -33,8 +33,12 @@ export class GameManager {
             }
             if (message.type = MOVE) {
                 const game = this.games.find(game => game.player1 === socket || game.player2 === socket)
+                if (!game) {
+                    console.error("Game not found for the socket");
+                    return;
+                }
                 if (game) {
-                    game.makeMove(socket, message.move);
+                    game.makeMove(game, message.move);
                 }
             }
             if (message.type === "game_over") {
