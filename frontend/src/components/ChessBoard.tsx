@@ -3,7 +3,7 @@ import React from 'react'
 import { useState } from 'react';
 import { MOVE, GAME_OVER } from '../messages';
 
-const ChessBoard = ({ board, socket, chess, setBoard }: {
+const ChessBoard = ({ board, socket, chess, setBoard, playerColor, gameStarted, currentTurn }: {
     chess: any;
     setBoard: (board: any) => void;
     board: ({
@@ -12,6 +12,9 @@ const ChessBoard = ({ board, socket, chess, setBoard }: {
         color: Color;
     } | null)[][]
     socket: WebSocket | null
+    playerColor: string;
+    gameStarted: boolean;
+    currentTurn: string;
 }) => {
     if (!socket) return (
         <div className="flex items-center justify-center p-6 bg-red-500/10 backdrop-blur-sm rounded-2xl border border-red-500/30">
@@ -19,6 +22,16 @@ const ChessBoard = ({ board, socket, chess, setBoard }: {
                 <div className="text-red-400 text-4xl mb-2">⚠️</div>
                 <div className="text-red-400 font-bold">Connection Lost</div>
                 <div className="text-red-300 text-sm">Socket connection is not established</div>
+            </div>
+        </div>
+    );
+
+    if (!gameStarted) return (
+        <div className="flex items-center justify-center p-6 bg-yellow-500/10 backdrop-blur-sm rounded-2xl border border-yellow-500/30">
+            <div className="text-center">
+                <div className="text-yellow-400 text-4xl mb-2">⏳</div>
+                <div className="text-yellow-400 font-bold">Waiting for Game</div>
+                <div className="text-yellow-300 text-sm">Waiting for another player to join...</div>
             </div>
         </div>
     );
@@ -41,13 +54,29 @@ const ChessBoard = ({ board, socket, chess, setBoard }: {
     };
 
     const handleSquareClick = (squareLabel: string) => {
+        // Check if it's the player's turn
+        const isPlayerTurn = (playerColor === 'white' && currentTurn === 'w') ||
+            (playerColor === 'black' && currentTurn === 'b');
+
+        if (!isPlayerTurn) {
+            console.log("It's not your turn!");
+            return;
+        }
+
         if (!from) {
             // First click - select piece
             const piece = board.find(row =>
                 row.find(cell => cell && cell.square === squareLabel)
             )?.find(cell => cell && cell.square === squareLabel);
 
+            // Check if player is trying to select their own piece
             if (piece) {
+                const pieceColor = piece.color === 'w' ? 'white' : 'black';
+                if (pieceColor !== playerColor) {
+                    console.log("You can only move your own pieces!");
+                    return;
+                }
+
                 setFrom(squareLabel);
                 setSelectedSquare(squareLabel);
                 // Get possible moves for this piece
@@ -61,19 +90,28 @@ const ChessBoard = ({ board, socket, chess, setBoard }: {
         } else {
             // Second click - make move
             try {
-                console.log(`Move from ${from} to ${squareLabel}`);
-                socket.send(JSON.stringify({
-                    type: MOVE,
-                    move: {
-                        from: from,
-                        to: squareLabel
-                    }
-                }));
-                chess.move({
+                console.log(`Attempting move from ${from} to ${squareLabel}`);
+
+                // Validate move before sending to server
+                const move = chess.move({
                     from: from,
-                    to: squareLabel
+                    to: squareLabel,
+                    promotion: 'q' // Always promote to queen for simplicity
                 });
-                setBoard(chess.board());
+
+                if (move) {
+                    // Send move to server
+                    socket.send(JSON.stringify({
+                        type: MOVE,
+                        move: {
+                            from: from,
+                            to: squareLabel
+                        }
+                    }));
+                    console.log("Move sent to server");
+                } else {
+                    console.log("Invalid move attempted");
+                }
             } catch (error) {
                 console.error("Invalid move:", error);
             } finally {

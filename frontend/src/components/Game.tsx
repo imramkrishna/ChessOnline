@@ -8,16 +8,19 @@ import { Chess } from 'chess.js';
 const Game = () => {
     const [gameStarted, setGameStarted] = useState(false);
     const [gameStatus, setGameStatus] = useState('waiting');
-    const [playerColor, setPlayerColor] = useState('white');
+    const [playerColor, setPlayerColor] = useState('');
     const [opponent, setOpponent] = useState('');
     const [chess, setChess] = useState(new Chess());
-    const [board, setBoard] = useState(chess.board())
+    const [board, setBoard] = useState(chess.board());
+    const [currentTurn, setCurrentTurn] = useState('w');
+    const [moveCount, setMoveCount] = useState(1);
     const navigate = useNavigate();
     const socket = useSocket();
 
     const handleStartGame = () => {
-        setGameStarted(true);
-        setGameStatus('playing');
+        setGameStarted(false);
+        setGameStatus('waiting');
+        setPlayerColor('');
         socket?.send(JSON.stringify({ type: INIT_GAME }));
     };
 
@@ -37,9 +40,19 @@ const Game = () => {
             console.log(message)
             switch (message.type) {
                 case INIT_GAME:
-                    setChess(new Chess());
-                    setBoard(chess.board());
-                    console.log("Game initialized.")
+                    // Only start game when server confirms both players joined
+                    if (message.payload && message.payload.color) {
+                        setPlayerColor(message.payload.color);
+                        setGameStarted(true);
+                        setGameStatus('playing');
+                        setChess(new Chess());
+                        setBoard(new Chess().board());
+                        setCurrentTurn('w');
+                        setMoveCount(1);
+                        console.log(`Game initialized. You are playing as ${message.payload.color}`);
+                    } else {
+                        console.log("Waiting for opponent to join...");
+                    }
                     break;
                 case MOVE:
                     console.log("♟️ Move received from server:", message.payload);
@@ -47,13 +60,17 @@ const Game = () => {
                         const updatedChess = new Chess(message.board);
                         setChess(updatedChess);
                         setBoard(updatedChess.board());
+                        setCurrentTurn(updatedChess.turn());
+                        setMoveCount(Math.ceil(updatedChess.history().length / 2) + 1);
                         console.log("✅ Board updated from server");
                     } catch (error) {
                         console.error("❌ Error updating board:", error);
                     }
                     break;
                 case GAME_OVER:
-                    console.log("Game over")
+                    console.log("Game over");
+                    setGameStarted(false);
+                    setGameStatus('ended');
                     break;
                 default:
                     console.log("Invalid message")
@@ -95,7 +112,15 @@ const Game = () => {
 
                                 {/* Chess Board Component */}
                                 <div className="flex justify-center mb-4 lg:mb-6">
-                                    <ChessBoard setBoard={setBoard} chess={chess} board={board} socket={socket} />
+                                    <ChessBoard
+                                        setBoard={setBoard}
+                                        chess={chess}
+                                        board={board}
+                                        socket={socket}
+                                        playerColor={playerColor}
+                                        gameStarted={gameStarted}
+                                        currentTurn={currentTurn}
+                                    />
                                 </div>
 
                                 {/* Game Info Below Board - Enhanced */}
@@ -104,12 +129,14 @@ const Game = () => {
                                         <div className="flex items-center space-x-2">
                                             <div className="w-3 h-3 lg:w-4 lg:h-4 bg-gradient-to-r from-green-400 to-emerald-400 rounded-full animate-pulse shadow-lg"></div>
                                             <span className="text-gray-200 font-medium">Turn:</span>
-                                            <span className="font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">White</span>
+                                            <span className="font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                                                {currentTurn === 'w' ? 'White' : 'Black'}
+                                            </span>
                                         </div>
                                         <div className="w-px h-5 lg:h-7 bg-gradient-to-b from-transparent via-gray-400 to-transparent"></div>
                                         <div className="flex items-center space-x-2">
                                             <span className="text-gray-200 font-medium">Move:</span>
-                                            <span className="font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">1</span>
+                                            <span className="font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">{moveCount}</span>
                                         </div>
                                     </div>
                                 </div>
