@@ -123,11 +123,16 @@ const ChessBoard = ({ board, socket, chess, setBoard, playerColor, gameStarted, 
         }
     };
 
+    // Determine board orientation - flip for black player
+    const isFlipped = playerColor === 'black';
+    const files = isFlipped ? ['h', 'g', 'f', 'e', 'd', 'c', 'b', 'a'] : ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+    const ranks = isFlipped ? ['1', '2', '3', '4', '5', '6', '7', '8'] : ['8', '7', '6', '5', '4', '3', '2', '1'];
+
     return (
         <div className="flex flex-col items-center space-y-3 w-full max-w-sm mx-auto sm:max-w-md md:max-w-lg">
             {/* File Labels (a-h) - Top */}
             <div className="grid grid-cols-8 gap-0 mb-1 w-full">
-                {['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'].map((file) => (
+                {files.map((file) => (
                     <div key={file} className="flex items-center justify-center text-white/70 text-xs sm:text-sm md:text-base font-bold h-4 sm:h-5">
                         {file}
                     </div>
@@ -137,7 +142,7 @@ const ChessBoard = ({ board, socket, chess, setBoard, playerColor, gameStarted, 
             <div className="flex items-center justify-center">
                 {/* Rank Labels (8-1) - Left */}
                 <div className="flex flex-col gap-0 mr-1 sm:mr-2">
-                    {['8', '7', '6', '5', '4', '3', '2', '1'].map((rank) => (
+                    {ranks.map((rank) => (
                         <div key={rank} className="flex items-center justify-center text-white/70 text-xs sm:text-sm md:text-base font-bold w-4 sm:w-5 h-10 sm:h-12 md:h-14 lg:h-16">
                             {rank}
                         </div>
@@ -147,10 +152,13 @@ const ChessBoard = ({ board, socket, chess, setBoard, playerColor, gameStarted, 
                 {/* Chess Board - Ultra Mobile Optimized */}
                 <div className="relative bg-gradient-to-br from-amber-900 to-amber-800 p-2 sm:p-3 rounded-xl sm:rounded-2xl shadow-2xl border-2 sm:border-4 border-amber-700/50">
                     <div className="grid grid-cols-8 gap-0 rounded-lg sm:rounded-xl overflow-hidden bg-gradient-to-br from-amber-50 to-amber-100">
-                        {board.map((row, rowIndex) => (
-                            row.map((cell, colIndex) => {
-                                const isLight = (rowIndex + colIndex) % 2 === 0;
-                                const squareRepresentation = String.fromCharCode(97 + colIndex) + (8 - rowIndex);
+                        {(isFlipped ? [...board].reverse() : board).map((row, rowIndex) => (
+                            (isFlipped ? [...row].reverse() : row).map((cell, colIndex) => {
+                                // Calculate the actual board position considering flipping
+                                const actualRowIndex = isFlipped ? 7 - rowIndex : rowIndex;
+                                const actualColIndex = isFlipped ? 7 - colIndex : colIndex;
+                                const isLight = (actualRowIndex + actualColIndex) % 2 === 0;
+                                const squareRepresentation = String.fromCharCode(97 + actualColIndex) + (8 - actualRowIndex);
                                 const squareLabel = squareRepresentation.toLowerCase();
                                 const isSelected = selectedSquare === squareLabel;
                                 const isPossibleMove = possibleMoves.includes(squareLabel);
@@ -158,7 +166,7 @@ const ChessBoard = ({ board, socket, chess, setBoard, playerColor, gameStarted, 
                                 return (
                                     <div
                                         onClick={() => handleSquareClick(squareLabel)}
-                                        key={`${rowIndex}-${colIndex}`}
+                                        key={`${actualRowIndex}-${actualColIndex}`}
                                         className={`
                                             w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16
                                             flex items-center justify-center relative cursor-pointer
@@ -229,7 +237,7 @@ const ChessBoard = ({ board, socket, chess, setBoard, playerColor, gameStarted, 
 
                 {/* Rank Labels (8-1) - Right */}
                 <div className="flex flex-col gap-0 ml-1 sm:ml-2">
-                    {['8', '7', '6', '5', '4', '3', '2', '1'].map((rank) => (
+                    {ranks.map((rank) => (
                         <div key={rank} className="flex items-center justify-center text-white/70 text-xs sm:text-sm md:text-base font-bold w-4 sm:w-5 h-10 sm:h-12 md:h-14 lg:h-16">
                             {rank}
                         </div>
@@ -239,7 +247,7 @@ const ChessBoard = ({ board, socket, chess, setBoard, playerColor, gameStarted, 
 
             {/* File Labels (a-h) - Bottom */}
             <div className="grid grid-cols-8 gap-0 mt-1 w-full">
-                {['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'].map((file) => (
+                {files.map((file) => (
                     <div key={file} className="flex items-center justify-center text-white/70 text-xs sm:text-sm md:text-base font-bold h-4 sm:h-5">
                         {file}
                     </div>

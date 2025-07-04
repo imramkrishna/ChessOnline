@@ -17,16 +17,18 @@ const Game = () => {
     const navigate = useNavigate();
     const socket = useSocket();
 
-    const handleStartGame = () => {
-        setGameStarted(false);
-        setGameStatus('waiting');
-        setPlayerColor('');
-        socket?.send(JSON.stringify({ type: INIT_GAME }));
-    };
+    // Auto-connect when component mounts
+    useEffect(() => {
+        if (socket && gameStatus === 'waiting' && !gameStarted) {
+            console.log('Auto-connecting to find opponent...');
+            socket.send(JSON.stringify({ type: INIT_GAME }));
+        }
+    }, [socket]);
 
     const handleLeaveGame = () => {
         setGameStarted(false);
         setGameStatus('waiting');
+        setPlayerColor('');
         console.log('Leaving game...');
         socket?.send(JSON.stringify({ type: GAME_OVER }));
     };
@@ -79,11 +81,18 @@ const Game = () => {
     }, [socket])
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-            {/* Animated background elements */}
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
+            {/* Enhanced Animated background elements */}
             <div className="absolute inset-0 overflow-hidden">
                 <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
                 <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-purple-500/5 to-blue-500/5 rounded-full blur-3xl"></div>
+
+                {/* Floating chess pieces animation */}
+                <div className="absolute top-10 left-10 text-4xl text-white/5 animate-bounce">♔</div>
+                <div className="absolute top-20 right-20 text-3xl text-white/5 animate-pulse">♛</div>
+                <div className="absolute bottom-20 left-20 text-3xl text-white/5 animate-bounce">♜</div>
+                <div className="absolute bottom-10 right-10 text-4xl text-white/5 animate-pulse">♞</div>
             </div>
 
             <div className="relative z-10 p-4 sm:p-6 lg:p-8">
@@ -91,7 +100,7 @@ const Game = () => {
                     {/* Header */}
                     <div className="text-center mb-6 lg:mb-8">
                         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-2">
-                            Chess<span className="text-purple-400 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Online</span>
+                            Chess<span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Online</span>
                         </h1>
                         <p className="text-gray-300 text-lg">Live Chess Battle Arena</p>
                     </div>
@@ -106,7 +115,22 @@ const Game = () => {
                                         Game Board
                                     </h3>
                                     <p className="text-gray-300 text-base lg:text-xl font-medium">
-                                        {gameStarted ? `Playing as ${playerColor}` : 'Ready to play'}
+                                        {gameStarted ? (
+                                            <span className="flex items-center justify-center space-x-2">
+                                                <span>Playing as</span>
+                                                <span className={`px-3 py-1 rounded-full text-sm font-bold ${playerColor === 'white'
+                                                    ? 'bg-gradient-to-r from-gray-100 to-gray-200 text-black shadow-lg'
+                                                    : 'bg-gradient-to-r from-gray-800 to-gray-900 text-white border border-gray-600 shadow-lg'
+                                                    }`}>
+                                                    {playerColor}
+                                                </span>
+                                            </span>
+                                        ) : (
+                                            <span className="flex items-center justify-center space-x-2">
+                                                <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
+                                                <span>Searching for opponent...</span>
+                                            </span>
+                                        )}
                                     </p>
                                 </div>
 
@@ -123,20 +147,39 @@ const Game = () => {
                                     />
                                 </div>
 
-                                {/* Game Info Below Board - Enhanced */}
+                                {/* Game Info Below Board - Enhanced with Turn Indicator */}
                                 <div className="flex justify-center">
                                     <div className="flex items-center space-x-4 lg:space-x-8 bg-gradient-to-r from-white/10 to-purple-500/10 backdrop-blur-lg rounded-xl px-4 lg:px-8 py-3 lg:py-4 text-sm lg:text-lg border border-white/20 shadow-lg">
                                         <div className="flex items-center space-x-2">
-                                            <div className="w-3 h-3 lg:w-4 lg:h-4 bg-gradient-to-r from-green-400 to-emerald-400 rounded-full animate-pulse shadow-lg"></div>
+                                            <div className={`w-3 h-3 lg:w-4 lg:h-4 rounded-full shadow-lg ${gameStarted
+                                                ? 'bg-gradient-to-r from-green-400 to-emerald-400 animate-pulse'
+                                                : 'bg-gradient-to-r from-yellow-400 to-orange-400 animate-pulse'
+                                                }`}></div>
                                             <span className="text-gray-200 font-medium">Turn:</span>
-                                            <span className="font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                                            <span className={`font-bold px-2 py-1 rounded-md ${currentTurn === 'w'
+                                                ? 'bg-gradient-to-r from-gray-100 to-gray-200 text-black'
+                                                : 'bg-gradient-to-r from-gray-800 to-gray-900 text-white border border-gray-600'
+                                                }`}>
                                                 {currentTurn === 'w' ? 'White' : 'Black'}
                                             </span>
+                                            {gameStarted && (
+                                                <span className={`text-xs px-2 py-1 rounded-full ${(playerColor === 'white' && currentTurn === 'w') || (playerColor === 'black' && currentTurn === 'b')
+                                                    ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                                                    : 'bg-orange-500/20 text-orange-400 border border-orange-500/30'
+                                                    }`}>
+                                                    {(playerColor === 'white' && currentTurn === 'w') || (playerColor === 'black' && currentTurn === 'b')
+                                                        ? 'Your Turn'
+                                                        : 'Opponent\'s Turn'
+                                                    }
+                                                </span>
+                                            )}
                                         </div>
                                         <div className="w-px h-5 lg:h-7 bg-gradient-to-b from-transparent via-gray-400 to-transparent"></div>
                                         <div className="flex items-center space-x-2">
                                             <span className="text-gray-200 font-medium">Move:</span>
-                                            <span className="font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">{moveCount}</span>
+                                            <span className="font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent text-xl">
+                                                {moveCount}
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
@@ -165,30 +208,49 @@ const Game = () => {
                                         </span>
                                     </div>
 
-                                    {/* Player Info - Enhanced */}
+                                    {/* Player Info - Enhanced with Connection Status */}
                                     <div className="bg-gradient-to-r from-white/5 to-purple-500/5 rounded-xl p-3 lg:p-4 space-y-3 border border-white/10">
                                         <div className="flex justify-between items-center">
                                             <span className="text-gray-200 flex items-center text-sm lg:text-base font-medium">
                                                 <span className="text-lg lg:text-xl mr-2">👤</span>
                                                 You
                                             </span>
-                                            <span className={`px-3 py-1 rounded-full text-xs lg:text-sm font-bold shadow-lg ${playerColor === 'white' ? 'bg-gradient-to-r from-gray-100 to-gray-200 text-black' : 'bg-gradient-to-r from-gray-800 to-gray-900 text-white border border-gray-600'
-                                                }`}>
-                                                {playerColor}
-                                            </span>
-                                        </div>
-                                        {opponent && (
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-gray-200 flex items-center text-sm lg:text-base font-medium">
-                                                    <span className="text-lg lg:text-xl mr-2">🤖</span>
-                                                    Opponent
-                                                </span>
-                                                <span className={`px-3 py-1 rounded-full text-xs lg:text-sm font-bold shadow-lg ${playerColor === 'white' ? 'bg-gradient-to-r from-gray-800 to-gray-900 text-white border border-gray-600' : 'bg-gradient-to-r from-gray-100 to-gray-200 text-black'
-                                                    }`}>
-                                                    {playerColor === 'white' ? 'black' : 'white'}
-                                                </span>
+                                            <div className="flex items-center space-x-2">
+                                                {playerColor && (
+                                                    <span className={`px-3 py-1 rounded-full text-xs lg:text-sm font-bold shadow-lg ${playerColor === 'white'
+                                                        ? 'bg-gradient-to-r from-gray-100 to-gray-200 text-black'
+                                                        : 'bg-gradient-to-r from-gray-800 to-gray-900 text-white border border-gray-600'
+                                                        }`}>
+                                                        {playerColor}
+                                                    </span>
+                                                )}
+                                                <div className={`w-2 h-2 rounded-full ${gameStarted ? 'bg-green-400' : 'bg-yellow-400 animate-pulse'
+                                                    }`}></div>
                                             </div>
-                                        )}
+                                        </div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-gray-200 flex items-center text-sm lg:text-base font-medium">
+                                                <span className="text-lg lg:text-xl mr-2">🤖</span>
+                                                Opponent
+                                            </span>
+                                            <div className="flex items-center space-x-2">
+                                                {gameStarted ? (
+                                                    <>
+                                                        <span className={`px-3 py-1 rounded-full text-xs lg:text-sm font-bold shadow-lg ${playerColor === 'white'
+                                                            ? 'bg-gradient-to-r from-gray-800 to-gray-900 text-white border border-gray-600'
+                                                            : 'bg-gradient-to-r from-gray-100 to-gray-200 text-black'
+                                                            }`}>
+                                                            {playerColor === 'white' ? 'black' : 'white'}
+                                                        </span>
+                                                        <div className="w-2 h-2 rounded-full bg-green-400"></div>
+                                                    </>
+                                                ) : (
+                                                    <span className="text-xs text-gray-400 px-2 py-1 bg-gray-500/20 rounded-md">
+                                                        Searching...
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -202,47 +264,48 @@ const Game = () => {
                                 </h3>
 
                                 <div className="space-y-2 lg:space-y-3">
-                                    {!gameStarted ? (
-                                        <button
-                                            onClick={handleStartGame}
-                                            className="group w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-2 lg:py-3 px-3 lg:px-4 rounded-lg lg:rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl relative overflow-hidden"
-                                        >
-                                            <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                            <div className="relative flex items-center justify-center space-x-1 lg:space-x-2">
-                                                <span className="text-lg">🎮</span>
-                                                <span className="text-sm lg:text-base">Start Game</span>
+                                    {gameStarted ? (
+                                        <>
+                                            <button
+                                                onClick={handleLeaveGame}
+                                                className="group w-full bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-semibold py-2 lg:py-3 px-3 lg:px-4 rounded-lg lg:rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl relative overflow-hidden"
+                                            >
+                                                <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                                <div className="relative flex items-center justify-center space-x-1 lg:space-x-2">
+                                                    <span className="text-lg">🚪</span>
+                                                    <span className="text-sm lg:text-base">Leave Game</span>
+                                                </div>
+                                            </button>
+
+                                            <div className="grid grid-cols-2 gap-2 lg:gap-3">
+                                                <button className="group bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-2 px-2 lg:px-3 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl relative overflow-hidden">
+                                                    <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                                    <div className="relative flex flex-col items-center justify-center space-y-1">
+                                                        <span className="text-lg">�</span>
+                                                        <span className="text-xs lg:text-sm">Draw</span>
+                                                    </div>
+                                                </button>
+
+                                                <button className="group bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white font-semibold py-2 px-2 lg:px-3 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl relative overflow-hidden">
+                                                    <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                                    <div className="relative flex flex-col items-center justify-center space-y-1">
+                                                        <span className="text-lg">🏳️</span>
+                                                        <span className="text-xs lg:text-sm">Resign</span>
+                                                    </div>
+                                                </button>
                                             </div>
-                                        </button>
+                                        </>
                                     ) : (
-                                        <button
-                                            onClick={handleLeaveGame}
-                                            className="group w-full bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-semibold py-2 lg:py-3 px-3 lg:px-4 rounded-lg lg:rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl relative overflow-hidden"
-                                        >
-                                            <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                            <div className="relative flex items-center justify-center space-x-1 lg:space-x-2">
-                                                <span className="text-lg">🚪</span>
-                                                <span className="text-sm lg:text-base">Leave Game</span>
-                                            </div>
-                                        </button>
+                                        <div className="text-center py-4 lg:py-6">
+                                            <div className="animate-spin w-8 h-8 lg:w-10 lg:h-10 border-4 border-purple-500/30 border-t-purple-500 rounded-full mx-auto mb-3"></div>
+                                            <p className="text-purple-300 font-medium text-sm lg:text-base">
+                                                {gameStatus === 'waiting' ? 'Finding opponent...' : 'Connecting...'}
+                                            </p>
+                                            <p className="text-purple-400/70 text-xs lg:text-sm mt-1">
+                                                Please wait while we match you with another player
+                                            </p>
+                                        </div>
                                     )}
-
-                                    <div className="grid grid-cols-2 gap-2 lg:gap-3">
-                                        <button className="group bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-2 px-2 lg:px-3 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl relative overflow-hidden">
-                                            <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                            <div className="relative flex flex-col items-center justify-center space-y-1">
-                                                <span className="text-lg">🔄</span>
-                                                <span className="text-xs lg:text-sm">Draw</span>
-                                            </div>
-                                        </button>
-
-                                        <button className="group bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white font-semibold py-2 px-2 lg:px-3 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl relative overflow-hidden">
-                                            <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                            <div className="relative flex flex-col items-center justify-center space-y-1">
-                                                <span className="text-lg">🏳️</span>
-                                                <span className="text-xs lg:text-sm">Resign</span>
-                                            </div>
-                                        </button>
-                                    </div>
                                 </div>
                             </div>
 
