@@ -126,7 +126,7 @@ const ChessBoard = ({ board, socket, chess, setBoard }: {
                                             flex items-center justify-center relative cursor-pointer
                                             transition-all duration-200 active:scale-95 touch-manipulation
                                             ${isLight
-                                                ? 'bg-gradient-to-br from-stone-100 to-stone-200 hover:from-stone-200 hover:to-stone-300'
+                                                ? 'bg-gradient-to-br from-blue-100 to-blue-200 hover:from-blue-200 hover:to-stone-300'
                                                 : 'bg-gradient-to-br from-amber-700 to-amber-800 hover:from-amber-600 hover:to-amber-700'
                                             }
                                             ${isSelected
