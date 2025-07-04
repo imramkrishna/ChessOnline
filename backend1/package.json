@@ -13,7 +13,9 @@
   "type": "commonjs",
   "dependencies": {
     "@types/ws": "^8.18.1",
+    "@upstash/redis": "^1.35.1",
     "chess.js": "^1.4.0",
+    "redis": "^5.5.6",
     "ws": "^8.18.3"
   }
 }
