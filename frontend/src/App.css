@@ -1,0 +1,34 @@
+/* Classic chess board support styles */
+.chess-board {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.overflow-safe { overflow: hidden; min-width: 0; }
+
+/* Neutralize all text / drop shadows for pieces */
+.chess-board span { text-shadow: none !important; }
+
+/* Optional: fine tune vertical alignment (most fonts render slightly low) */
+.chess-board span { position: relative; top: -1px; }
+
+/* Smooth piece rendering */
+.chess-board span { -webkit-font-smoothing: antialiased; font-smooth: always; }
+
+/* Remove scaling animations to prevent visual jitter */
+.chess-board .transition-all, .chess-board .transition { transition: none !important; }
+
+/* Square sizing utilities if needed */
+.square-48 { width: 48px; height: 48px; }
+.square-56 { width: 56px; height: 56px; }
+.square-64 { width: 64px; height: 64px; }
+
+/* Scrollbar minimal (optional) */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.25); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }

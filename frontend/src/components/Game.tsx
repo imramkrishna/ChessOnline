@@ -81,7 +81,7 @@ const Game = () => {
     }, [socket])
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-x-hidden overflow-y-auto">
             {/* Enhanced Animated background elements */}
             <div className="absolute inset-0 overflow-hidden">
                 <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
@@ -95,21 +95,21 @@ const Game = () => {
                 <div className="absolute bottom-10 right-10 text-4xl text-white/5 animate-pulse">♞</div>
             </div>
 
-            <div className="relative z-10 p-4 sm:p-6 lg:p-8">
-                <div className="max-w-7xl mx-auto">
+            <div className="relative z-10 p-4 sm:p-6 lg:p-8 w-full">
+                <div className="max-w-7xl mx-auto w-full">
                     {/* Header */}
-                    <div className="text-center mb-6 lg:mb-8">
+                    <div className="text-center mb-6 lg:mb-8 px-2">
                         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-2">
                             Chess<span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Online</span>
                         </h1>
                         <p className="text-gray-300 text-lg">Live Chess Battle Arena</p>
                     </div>
 
-                    {/* Main Game Area - Mobile First Design */}
-                    <div className="flex flex-col lg:grid lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6">
-                        {/* Chess Board - Mobile First */}
-                        <div className="lg:col-span-3 xl:col-span-4 order-1">
-                            <div className="bg-white/5 backdrop-blur-2xl rounded-2xl lg:rounded-3xl p-4 lg:p-8 border border-white/10 shadow-2xl hover:bg-white/10 transition-all duration-500 ring-1 ring-white/5">
+                    {/* Main Game Area - Responsive and Overflow-Safe */}
+                    <div className="flex flex-col lg:grid lg:grid-cols-4 xl:grid-cols-5 gap-4 lg:gap-6 w-full">
+                        {/* Chess Board - Responsive Container */}
+                        <div className="lg:col-span-3 xl:col-span-4 order-1 w-full">
+                            <div className="bg-white/5 backdrop-blur-2xl rounded-2xl lg:rounded-3xl p-4 lg:p-8 border border-white/10 shadow-2xl hover:bg-white/10 transition-all duration-500 ring-1 ring-white/5 w-full overflow-hidden">
                                 <div className="text-center mb-4 lg:mb-8">
                                     <h3 className="text-2xl lg:text-4xl font-bold mb-2 lg:mb-3 bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent">
                                         Game Board
@@ -134,17 +134,19 @@ const Game = () => {
                                     </p>
                                 </div>
 
-                                {/* Chess Board Component */}
-                                <div className="flex justify-center mb-4 lg:mb-6">
-                                    <ChessBoard
-                                        setBoard={setBoard}
-                                        chess={chess}
-                                        board={board}
-                                        socket={socket}
-                                        playerColor={playerColor}
-                                        gameStarted={gameStarted}
-                                        currentTurn={currentTurn}
-                                    />
+                                {/* Chess Board Component - Centered and Overflow-Safe */}
+                                <div className="flex justify-center mb-4 lg:mb-6 w-full overflow-hidden">
+                                    <div className="w-full max-w-lg flex justify-center">
+                                        <ChessBoard
+                                            setBoard={setBoard}
+                                            chess={chess}
+                                            board={board}
+                                            socket={socket}
+                                            playerColor={playerColor}
+                                            gameStarted={gameStarted}
+                                            currentTurn={currentTurn}
+                                        />
+                                    </div>
                                 </div>
 
                                 {/* Game Info Below Board - Enhanced with Turn Indicator */}
@@ -186,10 +188,10 @@ const Game = () => {
                             </div>
                         </div>
 
-                        {/* Control Panel - Compact for Mobile */}
-                        <div className="lg:col-span-1 xl:col-span-1 space-y-3 lg:space-y-4 order-2">
-                            {/* Game Status Card - Enhanced */}
-                            <div className="bg-gradient-to-br from-white/10 to-purple-500/5 backdrop-blur-2xl rounded-2xl lg:rounded-3xl p-4 lg:p-6 border border-white/20 shadow-2xl hover:bg-white/15 transition-all duration-500 ring-1 ring-white/10">
+                        {/* Control Panel - Responsive */}
+                        <div className="lg:col-span-1 xl:col-span-1 space-y-3 lg:space-y-4 order-2 w-full overflow-hidden">
+                            {/* Game Status Card - Enhanced and Overflow-Safe */}
+                            <div className="bg-gradient-to-br from-white/10 to-purple-500/5 backdrop-blur-2xl rounded-2xl lg:rounded-3xl p-4 lg:p-6 border border-white/20 shadow-2xl hover:bg-white/15 transition-all duration-500 ring-1 ring-white/10 overflow-hidden">
                                 <h2 className="text-xl lg:text-2xl font-bold text-white mb-4 flex items-center">
                                     <span className="text-2xl lg:text-3xl mr-3 animate-pulse">🎮</span>
                                     <span className="hidden sm:inline bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent">Game Status</span>
@@ -208,44 +210,44 @@ const Game = () => {
                                         </span>
                                     </div>
 
-                                    {/* Player Info - Enhanced with Connection Status */}
-                                    <div className="bg-gradient-to-r from-white/5 to-purple-500/5 rounded-xl p-3 lg:p-4 space-y-3 border border-white/10">
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-gray-200 flex items-center text-sm lg:text-base font-medium">
+                                    {/* Player Info - Fixed Overflow Issues */}
+                                    <div className="bg-gradient-to-r from-white/5 to-purple-500/5 rounded-xl p-3 lg:p-4 space-y-3 border border-white/10 overflow-hidden">
+                                        <div className="flex justify-between items-center min-w-0">
+                                            <span className="text-gray-200 flex items-center text-sm lg:text-base font-medium flex-shrink-0">
                                                 <span className="text-lg lg:text-xl mr-2">👤</span>
                                                 You
                                             </span>
-                                            <div className="flex items-center space-x-2">
+                                            <div className="flex items-center space-x-2 flex-shrink-0">
                                                 {playerColor && (
-                                                    <span className={`px-3 py-1 rounded-full text-xs lg:text-sm font-bold shadow-lg ${playerColor === 'white'
+                                                    <span className={`px-2 py-1 rounded-full text-xs font-bold shadow-lg whitespace-nowrap ${playerColor === 'white'
                                                         ? 'bg-gradient-to-r from-gray-100 to-gray-200 text-black'
                                                         : 'bg-gradient-to-r from-gray-800 to-gray-900 text-white border border-gray-600'
                                                         }`}>
                                                         {playerColor}
                                                     </span>
                                                 )}
-                                                <div className={`w-2 h-2 rounded-full ${gameStarted ? 'bg-green-400' : 'bg-yellow-400 animate-pulse'
+                                                <div className={`w-2 h-2 rounded-full flex-shrink-0 ${gameStarted ? 'bg-green-400' : 'bg-yellow-400 animate-pulse'
                                                     }`}></div>
                                             </div>
                                         </div>
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-gray-200 flex items-center text-sm lg:text-base font-medium">
+                                        <div className="flex justify-between items-center min-w-0">
+                                            <span className="text-gray-200 flex items-center text-sm lg:text-base font-medium flex-shrink-0">
                                                 <span className="text-lg lg:text-xl mr-2">🤖</span>
                                                 Opponent
                                             </span>
-                                            <div className="flex items-center space-x-2">
+                                            <div className="flex items-center space-x-2 flex-shrink-0">
                                                 {gameStarted ? (
                                                     <>
-                                                        <span className={`px-3 py-1 rounded-full text-xs lg:text-sm font-bold shadow-lg ${playerColor === 'white'
+                                                        <span className={`px-2 py-1 rounded-full text-xs font-bold shadow-lg whitespace-nowrap ${playerColor === 'white'
                                                             ? 'bg-gradient-to-r from-gray-800 to-gray-900 text-white border border-gray-600'
                                                             : 'bg-gradient-to-r from-gray-100 to-gray-200 text-black'
                                                             }`}>
                                                             {playerColor === 'white' ? 'black' : 'white'}
                                                         </span>
-                                                        <div className="w-2 h-2 rounded-full bg-green-400"></div>
+                                                        <div className="w-2 h-2 rounded-full bg-green-400 flex-shrink-0"></div>
                                                     </>
                                                 ) : (
-                                                    <span className="text-xs text-gray-400 px-2 py-1 bg-gray-500/20 rounded-md">
+                                                    <span className="text-xs text-gray-400 px-2 py-1 bg-gray-500/20 rounded-md whitespace-nowrap">
                                                         Searching...
                                                     </span>
                                                 )}

@@ -129,29 +129,29 @@ const ChessBoard = ({ board, socket, chess, setBoard, playerColor, gameStarted, 
     const ranks = isFlipped ? ['1', '2', '3', '4', '5', '6', '7', '8'] : ['8', '7', '6', '5', '4', '3', '2', '1'];
 
     return (
-        <div className="flex flex-col items-center space-y-3 w-full max-w-sm mx-auto sm:max-w-md md:max-w-lg">
+        <div className="chess-board flex flex-col items-center space-y-3 w-full mx-auto overflow-safe">
             {/* File Labels (a-h) - Top */}
-            <div className="grid grid-cols-8 gap-0 mb-1 w-full">
+        <div className="grid grid-cols-8 gap-0 mb-1 w-full px-2">
                 {files.map((file) => (
-                    <div key={file} className="flex items-center justify-center text-white/70 text-xs sm:text-sm md:text-base font-bold h-4 sm:h-5">
+            <div key={file} className="flex items-center justify-center text-neutral-400 text-xs sm:text-sm md:text-base font-semibold h-4 sm:h-5 tracking-wide">
                         {file}
                     </div>
                 ))}
             </div>
 
-            <div className="flex items-center justify-center">
+            <div className="flex items-center justify-center w-full">
                 {/* Rank Labels (8-1) - Left */}
-                <div className="flex flex-col gap-0 mr-1 sm:mr-2">
+        <div className="flex flex-col gap-0 mr-1 sm:mr-2 flex-shrink-0">
                     {ranks.map((rank) => (
-                        <div key={rank} className="flex items-center justify-center text-white/70 text-xs sm:text-sm md:text-base font-bold w-4 sm:w-5 h-10 sm:h-12 md:h-14 lg:h-16">
+            <div key={rank} className="flex items-center justify-center text-neutral-400 text-xs sm:text-sm md:text-base font-semibold w-4 sm:w-5 h-12 sm:h-14 md:h-16 lg:h-16">
                             {rank}
                         </div>
                     ))}
                 </div>
 
-                {/* Chess Board - Ultra Mobile Optimized */}
-                <div className="relative bg-gradient-to-br from-amber-900 to-amber-800 p-2 sm:p-3 rounded-xl sm:rounded-2xl shadow-2xl border-2 sm:border-4 border-amber-700/50">
-                    <div className="grid grid-cols-8 gap-0 rounded-lg sm:rounded-xl overflow-hidden bg-gradient-to-br from-amber-50 to-amber-100">
+        {/* Chess Board - Classic Style */}
+        <div className="relative bg-[#8b6f47] p-2 rounded-md border border-[#6e5432] overflow-hidden select-none">
+            <div className="grid grid-cols-8 gap-0 rounded-sm overflow-hidden">
                         {(isFlipped ? [...board].reverse() : board).map((row, rowIndex) => (
                             (isFlipped ? [...row].reverse() : row).map((cell, colIndex) => {
                                 // Calculate the actual board position considering flipping
@@ -168,66 +168,47 @@ const ChessBoard = ({ board, socket, chess, setBoard, playerColor, gameStarted, 
                                         onClick={() => handleSquareClick(squareLabel)}
                                         key={`${actualRowIndex}-${actualColIndex}`}
                                         className={`
-                                            w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16
-                                            flex items-center justify-center relative cursor-pointer
-                                            transition-all duration-200 active:scale-95 touch-manipulation
+                                            w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16
+                                            flex items-center justify-center relative cursor-pointer select-none
+                                            transition-colors duration-150 touch-manipulation
                                             ${isLight
-                                                ? 'bg-gradient-to-br from-blue-100 to-blue-200 hover:from-blue-200 hover:to-stone-300'
-                                                : 'bg-gradient-to-br from-amber-700 to-amber-800 hover:from-amber-600 hover:to-amber-700'
+                                                ? 'bg-[#f0d9b5] hover:bg-[#f7e8cf]'
+                                                : 'bg-[#b58863] hover:bg-[#c0926d]'
                                             }
-                                            ${isSelected
-                                                ? 'ring-2 sm:ring-3 ring-blue-500 ring-opacity-90 shadow-lg z-20'
-                                                : ''
-                                            }
+                                            ${isSelected ? 'outline-2 outline-blue-500 z-10' : ''}
                                         `}
                                         title={squareLabel}
                                     >
-                                        {/* Chess Pieces - Simple and Centered */}
+                                        {/* Chess Pieces - Centered */}
                                         {cell && (
                                             <span
                                                 className={`
-                                                    text-2xl sm:text-3xl md:text-4xl lg:text-5xl select-none font-bold
-                                                    transition-all duration-200 hover:scale-105 z-30 relative
-                                                    ${cell.color === 'w'
-                                                        ? 'text-white'
-                                                        : 'text-black'
-                                                    }
+                                                    text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold
+                                                    ${cell.color === 'w' ? 'text-white' : 'text-black'}
                                                 `}
                                                 style={{
+                                                    fontFamily: 'Segoe UI Symbol, Arial Unicode MS, "Noto Sans Symbols2", sans-serif',
                                                     lineHeight: '1',
-                                                    fontWeight: '700',
-                                                    userSelect: 'none',
-                                                    WebkitUserSelect: 'none',
-                                                    MozUserSelect: 'none',
-                                                    textShadow: cell.color === 'w'
-                                                        ? '1px 1px 1px rgba(0,0,0,0.6)'
-                                                        : '1px 1px 1px rgba(255,255,255,0.6)'
+                                                    textAlign: 'center'
                                                 }}
                                             >
                                                 {getPieceSymbol(cell)}
                                             </span>
                                         )}
 
-                                        {/* Move indicators - Clean and mobile-friendly */}
+                                        {/* Move indicators */}
                                         {isPossibleMove && !cell && (
                                             <div className="absolute inset-0 flex items-center justify-center z-10">
-                                                <div className="w-2 h-2 sm:w-3 sm:h-3 md:w-4 md:h-4 bg-green-500/80 rounded-full shadow-sm"></div>
+                                                <div className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 bg-green-400/90 rounded-full shadow-lg border-2 border-green-300/50 animate-pulse"></div>
                                             </div>
                                         )}
 
-                                        {/* Capture indicator - Clean and mobile-friendly */}
+                                        {/* Capture indicator */}
                                         {isPossibleMove && cell && (
-                                            <div className="absolute inset-1 border-2 border-red-500/70 rounded-sm z-10"></div>
+                                            <div className="absolute inset-1 border-3 border-red-400/80 rounded-md z-10 shadow-lg animate-pulse"></div>
                                         )}
 
-                                        {/* Square coordinates for debugging */}
-                                        <div className={`
-                                            absolute bottom-0 right-0 text-xs font-mono opacity-0 hover:opacity-60
-                                            transition-opacity duration-200 pr-1 pb-1 hidden md:block
-                                            ${isLight ? 'text-amber-800' : 'text-amber-100'}
-                                        `}>
-                                            {squareLabel}
-                                        </div>
+                                        {/* Square coordinates (disabled for cleaner classic look) */}
                                     </div>
                                 );
                             })
@@ -236,9 +217,9 @@ const ChessBoard = ({ board, socket, chess, setBoard, playerColor, gameStarted, 
                 </div>
 
                 {/* Rank Labels (8-1) - Right */}
-                <div className="flex flex-col gap-0 ml-1 sm:ml-2">
+        <div className="flex flex-col gap-0 ml-1 sm:ml-2 flex-shrink-0">
                     {ranks.map((rank) => (
-                        <div key={rank} className="flex items-center justify-center text-white/70 text-xs sm:text-sm md:text-base font-bold w-4 sm:w-5 h-10 sm:h-12 md:h-14 lg:h-16">
+            <div key={rank} className="flex items-center justify-center text-neutral-400 text-xs sm:text-sm md:text-base font-semibold w-4 sm:w-5 h-12 sm:h-14 md:h-16 lg:h-16">
                             {rank}
                         </div>
                     ))}
@@ -246,41 +227,51 @@ const ChessBoard = ({ board, socket, chess, setBoard, playerColor, gameStarted, 
             </div>
 
             {/* File Labels (a-h) - Bottom */}
-            <div className="grid grid-cols-8 gap-0 mt-1 w-full">
+        <div className="grid grid-cols-8 gap-0 mt-1 w-full px-2">
                 {files.map((file) => (
-                    <div key={file} className="flex items-center justify-center text-white/70 text-xs sm:text-sm md:text-base font-bold h-4 sm:h-5">
+            <div key={file} className="flex items-center justify-center text-neutral-400 text-xs sm:text-sm md:text-base font-semibold h-4 sm:h-5 tracking-wide">
                         {file}
                     </div>
                 ))}
             </div>
 
-            {/* Board Status - Mobile Optimized */}
-            <div className="bg-white/10 backdrop-blur-lg rounded-lg px-3 py-2 border border-white/20 w-full shadow-lg">
-                <div className="flex items-center justify-center space-x-2 sm:space-x-3 text-xs sm:text-sm">
-                    <div className="flex items-center space-x-1">
-                        <div className="w-2 h-2 sm:w-3 sm:h-3 bg-green-400 rounded-full animate-pulse shadow-lg"></div>
-                        <span className="text-white/90 font-medium">Active</span>
+            {/* Board Status - Enhanced */}
+            <div className="bg-neutral-800/30 backdrop-blur-xl rounded-md px-4 py-3 border border-neutral-700/40 w-full overflow-hidden">
+                <div className="flex items-center justify-center space-x-3 text-xs sm:text-sm">
+                    <div className="flex items-center space-x-2">
+                        <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                        <span className="text-white font-medium tracking-wide">Game Active</span>
                     </div>
                     {selectedSquare && (
                         <>
-                            <div className="text-white/40">•</div>
-                            <span className="text-white/90 font-medium">Selected: {selectedSquare.toUpperCase()}</span>
+                            <div className="text-white/30">•</div>
+                            <span className="text-white font-medium bg-blue-500/20 px-2 py-1 rounded">
+                                Selected: {selectedSquare.toUpperCase()}
+                            </span>
                         </>
                     )}
                 </div>
             </div>
 
-            {/* Mobile Instructions - Always Visible */}
-            <div className="bg-gradient-to-r from-purple-500/10 to-blue-500/10 backdrop-blur-lg rounded-lg px-3 py-2 border border-purple-500/20 w-full shadow-lg">
+            {/* Enhanced Instructions */}
+            <div className="bg-neutral-800/30 backdrop-blur-xl rounded-md px-4 py-3 border border-neutral-700/40 w-full overflow-hidden">
                 <div className="text-center">
-                    <div className="text-white/90 text-sm font-bold mb-1 flex items-center justify-center">
-                        <span className="mr-1 text-base">📱</span>
+                    <div className="text-white font-semibold mb-2 flex items-center justify-center text-sm tracking-wide">
+                        <span className="mr-2 text-base">🎯</span>
                         <span className="hidden sm:inline">How to Play</span>
                         <span className="sm:hidden">Instructions</span>
                     </div>
-                    <div className="text-white/70 text-xs sm:text-sm">
-                        <span className="hidden sm:inline">Tap a piece to select it, then tap destination square. Green dots show valid moves.</span>
-                        <span className="sm:hidden">Tap piece → Tap destination</span>
+                    <div className="text-white/80 text-xs sm:text-sm leading-relaxed tracking-wide">
+                        <span className="hidden sm:inline">
+                            Select your piece, then choose destination. 
+                            <span className="text-green-400 font-medium"> Green dots</span> = valid moves, 
+                            <span className="text-red-400 font-medium"> Red border</span> = captures
+                        </span>
+                        <span className="sm:hidden">
+                            Tap piece → Tap destination<br/>
+                            <span className="text-green-400">●</span> = move, 
+                            <span className="text-red-400">▢</span> = capture
+                        </span>
                     </div>
                 </div>
             </div>
