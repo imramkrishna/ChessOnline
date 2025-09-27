@@ -2,14 +2,12 @@ import { WebSocket } from "ws";
 import { Chess } from "chess.js"
 import { GAME_OVER, INIT_GAME, MOVE } from "./messages";
 import { Redis } from '@upstash/redis';
-const redis = new Redis({
-    url: 'https://ethical-pegasus-10842.upstash.io',
-    token: 'ASpaAAIjcDE5NDA1ZDdmMWYyYTQ0NTZkOGRhMjlkOGQ0YTg4ZjExZnAxMA',
-})
+
 interface moveType {
     from: string;
     to: string
 }
+
 export class Game {
     public player1: WebSocket
     public player2: WebSocket
