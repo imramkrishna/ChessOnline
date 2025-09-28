@@ -4,12 +4,21 @@ import { useNavigate } from 'react-router-dom'
 import { useSocket } from '../hooks/useSocket';
 import { INIT_GAME, MOVE, GAME_OVER } from '../messages';
 import { Chess } from 'chess.js';
-
+interface moveType{
+    from:string,
+    to:string
+}
+interface Moves{
+    player: WebSocket,
+    moveTime: Date,
+    move: moveType
+}
 const Game = () => {
     const [gameStarted, setGameStarted] = useState(false);
     const [gameStatus, setGameStatus] = useState('waiting');
+    const [gameTime, setGameTime] = useState(0);
     const [playerColor, setPlayerColor] = useState('');
-    const [opponent, setOpponent] = useState('');
+    const [moveHistory,setMoveHistory]=useState<Moves[]|[]>([])
     const [chess, setChess] = useState(new Chess());
     const [board, setBoard] = useState(chess.board());
     const [currentTurn, setCurrentTurn] = useState('w');
@@ -18,6 +27,24 @@ const Game = () => {
     const socket = useSocket();
 
     // Auto-connect when component mounts
+    useEffect(() => {
+        let timer: NodeJS.Timeout;
+        if (gameStarted) {
+            timer = setInterval(() => {
+                setGameTime((prev) => prev + 1);
+            }, 1000);
+        } else {
+            setGameTime(0);
+        }
+        return () => {
+            if (timer) clearInterval(timer);
+        }}, [gameStarted]);
+
+    const formatTime = (seconds: number) => {
+        const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+        const secs = (seconds % 60).toString().padStart(2, '0');
+        return `${mins}:${secs}`;
+    };
     useEffect(() => {
         if (socket && gameStatus === 'waiting' && !gameStarted) {
             console.log('Auto-connecting to find opponent...');
@@ -39,7 +66,6 @@ const Game = () => {
         }
         socket.onmessage = (event) => {
             const message = JSON.parse(event.data);
-            console.log(message)
             switch (message.type) {
                 case INIT_GAME:
                     // Only start game when server confirms both players joined
@@ -59,12 +85,14 @@ const Game = () => {
                 case MOVE:
                     console.log("♟️ Move received from server:", message.payload);
                     try {
+                        setMoveHistory([])
                         const updatedChess = new Chess(message.board);
                         setChess(updatedChess);
                         setBoard(updatedChess.board());
                         setCurrentTurn(updatedChess.turn());
                         setMoveCount(Math.ceil(updatedChess.history().length / 2) + 1);
                         console.log("✅ Board updated from server");
+                        setMoveHistory(message.AllMoves)
                     } catch (error) {
                         console.error("❌ Error updating board:", error);
                     }
@@ -319,21 +347,13 @@ const Game = () => {
                                 </h3>
 
                                 <div className="space-y-2 lg:space-y-3">
-                                    <div className="flex justify-between items-center p-2 lg:p-3 bg-white/5 rounded-lg">
-                                        <span className="text-gray-300 flex items-center text-sm lg:text-base">
-                                            <span className="text-sm lg:text-lg mr-1 lg:mr-2">👤</span>
-                                            <span className="hidden sm:inline">Your Time</span>
-                                            <span className="sm:hidden">You</span>
+                                    <div className="flex justify-between items-center p-3 bg-gradient-to-r from-white/5 to-purple-500/5 rounded-xl border border-white/10">
+                                        <span className="text-gray-300 flex items-center">
+                                            <span className="text-sm lg:text-lg mr-1 lg:mr-2">⏱️</span>
+                                            <span className="hidden sm:inline">Game Time</span>
+                                            <span className="sm:hidden">Time</span>
                                         </span>
-                                        <span className="text-lg lg:text-2xl font-mono text-green-400 font-bold">10:00</span>
-                                    </div>
-                                    <div className="flex justify-between items-center p-2 lg:p-3 bg-white/5 rounded-lg">
-                                        <span className="text-gray-300 flex items-center text-sm lg:text-base">
-                                            <span className="text-sm lg:text-lg mr-1 lg:mr-2">🤖</span>
-                                            <span className="hidden sm:inline">Opponent</span>
-                                            <span className="sm:hidden">Opp</span>
-                                        </span>
-                                        <span className="text-lg lg:text-2xl font-mono text-blue-400 font-bold">10:00</span>
+                                        <span className="text-lg lg:text-2xl font-mono text-purple-400 font-bold">{formatTime(gameTime)}</span>
                                     </div>
                                 </div>
                             </div>
@@ -347,18 +367,17 @@ const Game = () => {
 
                                 <div className="max-h-24 lg:max-h-32 overflow-y-auto text-sm text-gray-300 bg-white/5 rounded-lg p-2 lg:p-3">
                                     <div className="space-y-1 lg:space-y-2">
-                                        <div className="flex justify-between">
-                                            <span className="text-gray-400">1.</span>
-                                            <span>e4 e5</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-gray-400">2.</span>
-                                            <span>Nf3 Nc6</span>
-                                        </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-gray-400">3.</span>
-                                            <span>Bb5 a6</span>
-                                        </div>
+                                        {moveHistory.length===0 ?(
+                                            <div></div>
+                                        ) :
+                                        moveHistory.map((move, index) => (
+                                            <div key={index} className="flex justify-between items-center">
+                                                <span className="font-mono">{index + 1}.</span>
+                                                <span className="flex-1 text-center font-mono">{move.move.from} → {move.move.to}</span>
+                                                <span className="text-xs text-gray-400 font-mono">{new Date(move.moveTime).toLocaleTimeString()}</span>
+                                            </div>
+                                        ))
+                                        }
                                     </div>
                                 </div>
                             </div>
