@@ -149,11 +149,11 @@ const ChessBoard = ({ board, socket, chess, setBoard, playerColor, gameStarted, 
                     ))}
                 </div>
 
-                {/* Chess Board - Fixed Grid */}
-                <div className="relative bg-[#8b6f47] p-2 rounded-md border-2 border-[#6e5432] overflow-hidden select-none">
-                    <div className="grid grid-cols-8 gap-0">
-                        {(isFlipped ? [...board].reverse() : board).map((row, rowIndex) => (
-                            (isFlipped ? [...row].reverse() : row).map((cell, colIndex) => {
+                {/* Chess Board - Flexbox Rows for Perfect Uniformity */}
+                <div className="inline-block bg-[#6e5432] rounded-md overflow-hidden select-none">
+                    {(isFlipped ? [...board].reverse() : board).map((row, rowIndex) => (
+                        <div key={`row-${rowIndex}`} className="flex">
+                            {(isFlipped ? [...row].reverse() : row).map((cell, colIndex) => {
                                 // Calculate the actual board position considering flipping
                                 const actualRowIndex = isFlipped ? 7 - rowIndex : rowIndex;
                                 const actualColIndex = isFlipped ? 7 - colIndex : colIndex;
@@ -168,17 +168,20 @@ const ChessBoard = ({ board, socket, chess, setBoard, playerColor, gameStarted, 
                                         onClick={() => handleSquareClick(squareLabel)}
                                         key={`${actualRowIndex}-${actualColIndex}`}
                                         className={`
-                                            w-16 h-16 sm:w-14 sm:h-14 md:w-16 md:h-16
                                             flex items-center justify-center relative cursor-pointer select-none
                                             border-r border-b border-[#6e5432]
-                                            ${colIndex === 7 ? 'border-r-0' : ''}
-                                            ${rowIndex === 7 ? 'border-b-0' : ''}
                                             ${isLight
                                                 ? 'bg-[#f0d9b5] hover:bg-[#f7e8cf]'
                                                 : 'bg-[#b58863] hover:bg-[#c0926d]'
                                             }
                                             ${isSelected ? 'ring-2 ring-blue-400 ring-inset' : ''}
                                         `}
+                                        style={{ 
+                                            width: '64px', 
+                                            height: '64px',
+                                            borderRight: colIndex === 7 ? 'none' : '1px solid #6e5432',
+                                            borderBottom: rowIndex === 7 ? 'none' : '1px solid #6e5432'
+                                        }}
                                         title={squareLabel}
                                     >
                                         {/* Chess Pieces */}
@@ -214,9 +217,9 @@ const ChessBoard = ({ board, socket, chess, setBoard, playerColor, gameStarted, 
                                         )}
                                     </div>
                                 );
-                            })
-                        ))}
-                    </div>
+                            })}
+                        </div>
+                    ))}
                 </div>
 
                 {/* Rank Labels (8-1) - Right */}
