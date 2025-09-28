@@ -28,7 +28,7 @@ const Game = () => {
 
     // Auto-connect when component mounts
     useEffect(() => {
-        let timer: NodeJS.Timeout;
+        let timer: number;
         if (gameStarted) {
             timer = setInterval(() => {
                 setGameTime((prev) => prev + 1);
