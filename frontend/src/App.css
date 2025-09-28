@@ -19,13 +19,18 @@
 /* Smooth piece rendering */
 .chess-board span { -webkit-font-smoothing: antialiased; font-smooth: always; }
 
-/* Remove scaling animations to prevent visual jitter */
-.chess-board .transition-all, .chess-board .transition { transition: none !important; }
+/* Remove ALL transitions and animations to prevent visual jitter */
+.chess-board *, .chess-board *::before, .chess-board *::after { 
+  transition: none !important; 
+  animation: none !important;
+}
 
-/* Square sizing utilities if needed */
-.square-48 { width: 48px; height: 48px; }
-.square-56 { width: 56px; height: 56px; }
-.square-64 { width: 64px; height: 64px; }
+/* Ensure pieces don't affect square dimensions */
+.chess-board span {
+  position: relative !important;
+  line-height: 1 !important;
+  display: block !important;
+}
 
 /* Scrollbar minimal (optional) */
 ::-webkit-scrollbar { width: 5px; }

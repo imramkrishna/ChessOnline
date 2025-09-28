@@ -129,29 +129,29 @@ const ChessBoard = ({ board, socket, chess, setBoard, playerColor, gameStarted, 
     const ranks = isFlipped ? ['1', '2', '3', '4', '5', '6', '7', '8'] : ['8', '7', '6', '5', '4', '3', '2', '1'];
 
     return (
-        <div className="chess-board flex flex-col items-center space-y-3 w-full mx-auto overflow-safe">
+        <div className="chess-board flex flex-col items-center space-y-3 w-fit mx-auto overflow-safe">
             {/* File Labels (a-h) - Top */}
-        <div className="grid grid-cols-8 gap-0 mb-1 w-full px-2">
+            <div className="grid grid-cols-8 gap-0 mb-1 px-2" style={{ width: '520px' }}>
                 {files.map((file) => (
-            <div key={file} className="flex items-center justify-center text-neutral-400 text-xs sm:text-sm md:text-base font-semibold h-4 sm:h-5 tracking-wide">
+                    <div key={file} className="flex items-center justify-center text-neutral-400 text-xs sm:text-sm md:text-base font-semibold h-4 sm:h-5 tracking-wide">
                         {file}
                     </div>
                 ))}
             </div>
 
-            <div className="flex items-center justify-center w-full">
+            <div className="flex items-center justify-center">
                 {/* Rank Labels (8-1) - Left */}
-        <div className="flex flex-col gap-0 mr-1 sm:mr-2 flex-shrink-0">
+                <div className="flex flex-col gap-0 mr-2 flex-shrink-0">
                     {ranks.map((rank) => (
-            <div key={rank} className="flex items-center justify-center text-neutral-400 text-xs sm:text-sm md:text-base font-semibold w-4 sm:w-5 h-12 sm:h-14 md:h-16 lg:h-16">
+                        <div key={rank} className="flex items-center justify-center text-neutral-400 text-xs sm:text-sm md:text-base font-semibold w-5 h-16 sm:h-14 md:h-16">
                             {rank}
                         </div>
                     ))}
                 </div>
 
-        {/* Chess Board - Classic Style */}
-        <div className="relative bg-[#8b6f47] p-2 rounded-md border border-[#6e5432] overflow-hidden select-none">
-            <div className="grid grid-cols-8 gap-0 rounded-sm overflow-hidden">
+                {/* Chess Board - Fixed Grid */}
+                <div className="relative bg-[#8b6f47] p-2 rounded-md border-2 border-[#6e5432] overflow-hidden select-none">
+                    <div className="grid grid-cols-8 gap-0">
                         {(isFlipped ? [...board].reverse() : board).map((row, rowIndex) => (
                             (isFlipped ? [...row].reverse() : row).map((cell, colIndex) => {
                                 // Calculate the actual board position considering flipping
@@ -168,28 +168,33 @@ const ChessBoard = ({ board, socket, chess, setBoard, playerColor, gameStarted, 
                                         onClick={() => handleSquareClick(squareLabel)}
                                         key={`${actualRowIndex}-${actualColIndex}`}
                                         className={`
-                                            w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16
+                                            w-16 h-16 sm:w-14 sm:h-14 md:w-16 md:h-16
                                             flex items-center justify-center relative cursor-pointer select-none
-                                            transition-colors duration-150 touch-manipulation
+                                            border-r border-b border-[#6e5432]
+                                            ${colIndex === 7 ? 'border-r-0' : ''}
+                                            ${rowIndex === 7 ? 'border-b-0' : ''}
                                             ${isLight
                                                 ? 'bg-[#f0d9b5] hover:bg-[#f7e8cf]'
                                                 : 'bg-[#b58863] hover:bg-[#c0926d]'
                                             }
-                                            ${isSelected ? 'outline-2 outline-blue-500 z-10' : ''}
+                                            ${isSelected ? 'ring-2 ring-blue-400 ring-inset' : ''}
                                         `}
                                         title={squareLabel}
                                     >
-                                        {/* Chess Pieces - Centered */}
+                                        {/* Chess Pieces */}
                                         {cell && (
                                             <span
                                                 className={`
-                                                    text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold
+                                                    text-3xl sm:text-2xl md:text-3xl font-semibold
+                                                    select-none pointer-events-none
                                                     ${cell.color === 'w' ? 'text-white' : 'text-black'}
                                                 `}
                                                 style={{
                                                     fontFamily: 'Segoe UI Symbol, Arial Unicode MS, "Noto Sans Symbols2", sans-serif',
                                                     lineHeight: '1',
-                                                    textAlign: 'center'
+                                                    textShadow: cell.color === 'w' 
+                                                        ? '1px 1px 1px rgba(0, 0, 0, 0.3)' 
+                                                        : '1px 1px 1px rgba(255, 255, 255, 0.2)'
                                                 }}
                                             >
                                                 {getPieceSymbol(cell)}
@@ -198,17 +203,15 @@ const ChessBoard = ({ board, socket, chess, setBoard, playerColor, gameStarted, 
 
                                         {/* Move indicators */}
                                         {isPossibleMove && !cell && (
-                                            <div className="absolute inset-0 flex items-center justify-center z-10">
-                                                <div className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 bg-green-400/90 rounded-full shadow-lg border-2 border-green-300/50 animate-pulse"></div>
+                                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+                                                <div className="w-4 h-4 bg-green-400/90 rounded-full shadow-sm border border-green-300/50"></div>
                                             </div>
                                         )}
 
                                         {/* Capture indicator */}
                                         {isPossibleMove && cell && (
-                                            <div className="absolute inset-1 border-3 border-red-400/80 rounded-md z-10 shadow-lg animate-pulse"></div>
+                                            <div className="absolute inset-0.5 rounded-sm ring-2 ring-inset ring-red-400/80 pointer-events-none shadow-sm"></div>
                                         )}
-
-                                        {/* Square coordinates (disabled for cleaner classic look) */}
                                     </div>
                                 );
                             })
@@ -217,9 +220,9 @@ const ChessBoard = ({ board, socket, chess, setBoard, playerColor, gameStarted, 
                 </div>
 
                 {/* Rank Labels (8-1) - Right */}
-        <div className="flex flex-col gap-0 ml-1 sm:ml-2 flex-shrink-0">
+                <div className="flex flex-col gap-0 ml-2 flex-shrink-0">
                     {ranks.map((rank) => (
-            <div key={rank} className="flex items-center justify-center text-neutral-400 text-xs sm:text-sm md:text-base font-semibold w-4 sm:w-5 h-12 sm:h-14 md:h-16 lg:h-16">
+                        <div key={rank} className="flex items-center justify-center text-neutral-400 text-xs sm:text-sm md:text-base font-semibold w-5 h-16 sm:h-14 md:h-16">
                             {rank}
                         </div>
                     ))}
@@ -227,9 +230,9 @@ const ChessBoard = ({ board, socket, chess, setBoard, playerColor, gameStarted, 
             </div>
 
             {/* File Labels (a-h) - Bottom */}
-        <div className="grid grid-cols-8 gap-0 mt-1 w-full px-2">
+            <div className="grid grid-cols-8 gap-0 mt-1 px-2" style={{ width: '520px' }}>
                 {files.map((file) => (
-            <div key={file} className="flex items-center justify-center text-neutral-400 text-xs sm:text-sm md:text-base font-semibold h-4 sm:h-5 tracking-wide">
+                    <div key={file} className="flex items-center justify-center text-neutral-400 text-xs sm:text-sm md:text-base font-semibold h-4 sm:h-5 tracking-wide">
                         {file}
                     </div>
                 ))}
