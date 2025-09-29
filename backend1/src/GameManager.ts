@@ -1,5 +1,5 @@
 import { WebSocket } from "ws"
-import { INIT_GAME, MOVE } from "./messages"
+import { INIT_GAME, MOVE, RESIGN } from "./messages"
 import { Game } from "./Game"
 
 export class GameManager {
@@ -21,7 +21,7 @@ export class GameManager {
     private addHandler(socket: WebSocket) {
         socket.on("message", (data) => {
             const message = JSON.parse(data.toString())
-            if (message.type = INIT_GAME) {
+            if (message.type === INIT_GAME) {
                 if (this.pendingUsers) {
                     const game = new Game(this.pendingUsers, socket);
                     this.games.push(game)
@@ -31,7 +31,7 @@ export class GameManager {
                 }
 
             }
-            if (message.type = MOVE) {
+            if (message.type === MOVE) {
                 const game = this.games.find(game => game.player1 === socket || game.player2 === socket)
                 if (!game) {
                     console.error("Game not found for the socket");
@@ -56,6 +56,29 @@ export class GameManager {
                     }));
                     this.games = this.games.filter(g => g !== game);
                 }
+            }
+            if(message.type === RESIGN){
+                const game=this.games.find(game=>game.player1===socket || game.player2===socket)
+                if(game){
+                    if(game.player1===socket){
+                        game.player1.send(JSON.stringify({
+                            type:"resign",
+                        }))
+                        game.player2.send(JSON.stringify({
+                            type:"resign",
+                        }))
+                    }else{
+                        game.player1.send(JSON.stringify({
+                            type:"resign",
+                        }))
+                        game.player2.send(JSON.stringify({
+                            type:"resign",
+                        }))
+                    }
+                }
+            }
+            if(message.type === "draw_offer"){
+
             }
         })
     }

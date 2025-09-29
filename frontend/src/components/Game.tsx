@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react'
 import ChessBoard from './ChessBoard'
 import { useNavigate } from 'react-router-dom'
 import { useSocket } from '../hooks/useSocket';
-import { INIT_GAME, MOVE, GAME_OVER } from '../messages';
+import { INIT_GAME, MOVE, GAME_OVER, RESIGN } from '../messages';
 import { Chess } from 'chess.js';
-interface moveType{
-    from:string,
-    to:string
+interface moveType {
+    from: string,
+    to: string
 }
-interface Moves{
+interface Moves {
     player: WebSocket,
     moveTime: Date,
     move: moveType
@@ -18,14 +18,14 @@ const Game = () => {
     const [gameStatus, setGameStatus] = useState('waiting');
     const [gameTime, setGameTime] = useState(0);
     const [playerColor, setPlayerColor] = useState('');
-    const [moveHistory,setMoveHistory]=useState<Moves[]|[]>([])
+    const [moveHistory, setMoveHistory] = useState<Moves[] | []>([])
     const [chess, setChess] = useState(new Chess());
     const [board, setBoard] = useState(chess.board());
     const [currentTurn, setCurrentTurn] = useState('w');
     const [moveCount, setMoveCount] = useState(1);
+    const [resignLoading, setResignLoading] = useState<boolean>(false)
     const navigate = useNavigate();
     const socket = useSocket();
-
     // Auto-connect when component mounts
     useEffect(() => {
         let timer: number;
@@ -38,7 +38,8 @@ const Game = () => {
         }
         return () => {
             if (timer) clearInterval(timer);
-        }}, [gameStarted]);
+        }
+    }, [gameStarted]);
 
     const formatTime = (seconds: number) => {
         const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
@@ -51,7 +52,20 @@ const Game = () => {
             socket.send(JSON.stringify({ type: INIT_GAME }));
         }
     }, [socket]);
-
+    const handleResign = () => {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            try {
+                socket.send(JSON.stringify({ type: RESIGN }))
+                // optionally wait for server ack before navigating
+                navigate("/")
+            } catch (err) {
+                console.error("Failed to send resign message:", err)
+            }
+        } else {
+            console.warn("Socket not connected, cannot resign.")
+            navigate("/") // maybe still navigate
+        }
+    }
     const handleLeaveGame = () => {
         setGameStarted(false);
         setGameStatus('waiting');
@@ -102,12 +116,18 @@ const Game = () => {
                     setGameStarted(false);
                     setGameStatus('ended');
                     break;
+                case RESIGN:
+                    console.log("Opponent resigned. You win!");
+                    alert("You win! Opponent resigned.");
+                    setGameStarted(false);
+                    setGameStatus('ended');
+                    navigate("/")
+                    break;
                 default:
                     console.log("Invalid message")
             }
         }
     }, [socket])
-
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-x-hidden overflow-y-auto">
             {/* Enhanced Animated background elements */}
@@ -316,7 +336,9 @@ const Game = () => {
                                                     </div>
                                                 </button>
 
-                                                <button className="group bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white font-semibold py-2 px-2 lg:px-3 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl relative overflow-hidden">
+                                                <button className="group bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white font-semibold py-2 px-2 lg:px-3 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl relative overflow-hidden"
+                                                    onClick={() => handleResign()}
+                                                >
                                                     <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                                     <div className="relative flex flex-col items-center justify-center space-y-1">
                                                         <span className="text-lg">🏳️</span>
@@ -367,16 +389,16 @@ const Game = () => {
 
                                 <div className="max-h-24 lg:max-h-32 overflow-y-auto text-sm text-gray-300 bg-white/5 rounded-lg p-2 lg:p-3">
                                     <div className="space-y-1 lg:space-y-2">
-                                        {moveHistory.length===0 ?(
+                                        {moveHistory.length === 0 ? (
                                             <div></div>
                                         ) :
-                                        moveHistory.map((move, index) => (
-                                            <div key={index} className="flex justify-between items-center">
-                                                <span className="font-mono">{index + 1}.</span>
-                                                <span className="flex-1 text-center font-mono">{move.move.from} → {move.move.to}</span>
-                                                <span className="text-xs text-gray-400 font-mono">{new Date(move.moveTime).toLocaleTimeString()}</span>
-                                            </div>
-                                        ))
+                                            moveHistory.map((move, index) => (
+                                                <div key={index} className="flex justify-between items-center">
+                                                    <span className="font-mono">{index + 1}.</span>
+                                                    <span className="flex-1 text-center font-mono">{move.move.from} → {move.move.to}</span>
+                                                    <span className="text-xs text-gray-400 font-mono">{new Date(move.moveTime).toLocaleTimeString()}</span>
+                                                </div>
+                                            ))
                                         }
                                     </div>
                                 </div>
