@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom'
 import { useSocket } from '../hooks/useSocket';
 import { INIT_GAME, MOVE, GAME_OVER, RESIGN } from '../messages';
 import { Chess } from 'chess.js';
+import VictoryMessage from './VictoryMessage';
+import DefeatMessage from './DefeatMessage';
 interface moveType {
     from: string,
     to: string
@@ -23,9 +25,11 @@ const Game = () => {
     const [board, setBoard] = useState(chess.board());
     const [currentTurn, setCurrentTurn] = useState('w');
     const [moveCount, setMoveCount] = useState(1);
-    const [resignLoading, setResignLoading] = useState<boolean>(false)
+    const [showVictoryMessage, setShowVictoryMessage] = useState<boolean>(false);
+    const [showDefeatMessage, setShowDefeatMessage] = useState<boolean>(false);
     const navigate = useNavigate();
     const socket = useSocket();
+    const hasResult = showVictoryMessage || showDefeatMessage;
     // Auto-connect when component mounts
     useEffect(() => {
         let timer: number;
@@ -56,17 +60,18 @@ const Game = () => {
         if (socket && socket.readyState === WebSocket.OPEN) {
             try {
                 socket.send(JSON.stringify({ type: RESIGN }))
-                // optionally wait for server ack before navigating
-                navigate("/")
+                setShowDefeatMessage(true);
             } catch (err) {
                 console.error("Failed to send resign message:", err)
             }
         } else {
             console.warn("Socket not connected, cannot resign.")
-            navigate("/") // maybe still navigate
+            navigate("/")
         }
     }
     const handleLeaveGame = () => {
+        setShowVictoryMessage(false);
+        setShowDefeatMessage(false);
         setGameStarted(false);
         setGameStatus('waiting');
         setPlayerColor('');
@@ -74,6 +79,10 @@ const Game = () => {
         socket?.send(JSON.stringify({ type: GAME_OVER }));
     };
 
+    const handleGoHome = () => {
+        handleLeaveGame();
+        navigate('/');
+    };
     useEffect(() => {
         if (!socket) {
             return
@@ -117,11 +126,10 @@ const Game = () => {
                     setGameStatus('ended');
                     break;
                 case RESIGN:
-                    console.log("Opponent resigned. You win!");
-                    alert("You win! Opponent resigned.");
+                    setShowVictoryMessage(true);
                     setGameStarted(false);
                     setGameStatus('ended');
-                    navigate("/")
+                    console.log("Opponent resigned. You win!");
                     break;
                 default:
                     console.log("Invalid message")
@@ -130,6 +138,27 @@ const Game = () => {
     }, [socket])
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-x-hidden overflow-y-auto">
+            {
+                hasResult && (
+                    <div className="fixed inset-0 z-40 flex items-center justify-center px-4">
+                        <div className="absolute inset-0 bg-black/70 backdrop-blur-lg" />
+                        <div className="relative z-10 w-full max-w-lg">
+                            {showVictoryMessage && (
+                                <VictoryMessage
+                                    onGoHome={handleGoHome}
+                                    onClose={() => setShowVictoryMessage(false)}
+                                />
+                            )}
+                            {showDefeatMessage && (
+                                <DefeatMessage
+                                    onGoHome={handleGoHome}
+                                    onClose={() => setShowDefeatMessage(false)}
+                                />
+                            )}
+                        </div>
+                    </div>
+                )}
+                <div className="absolute inset-0 overflow-hidden"></div>
             {/* Enhanced Animated background elements */}
             <div className="absolute inset-0 overflow-hidden">
                 <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse"></div>
