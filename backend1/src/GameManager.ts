@@ -61,17 +61,11 @@ export class GameManager {
                 const game=this.games.find(game=>game.player1===socket || game.player2===socket)
                 if(game){
                     if(game.player1===socket){
-                        game.player1.send(JSON.stringify({
-                            type:"resign",
-                        }))
                         game.player2.send(JSON.stringify({
                             type:"resign",
                         }))
                     }else{
                         game.player1.send(JSON.stringify({
-                            type:"resign",
-                        }))
-                        game.player2.send(JSON.stringify({
                             type:"resign",
                         }))
                     }
