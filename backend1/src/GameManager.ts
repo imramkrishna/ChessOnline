@@ -123,6 +123,9 @@ export class GameManager {
                         game.player1.send(JSON.stringify({
                             type:DRAW_REJECTED
                         }))
+                        game.player2.send(JSON.stringify({
+                            type:DRAW_REJECTED
+                        }))
                     }
                 }
             }

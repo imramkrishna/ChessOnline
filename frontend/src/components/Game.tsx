@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react'
 import ChessBoard from './ChessBoard'
 import { useNavigate } from 'react-router-dom'
 import { useSocket } from '../hooks/useSocket';
-import { INIT_GAME, MOVE, GAME_OVER, RESIGN, OFFERING_DRAW, DRAW_ACCEPTED } from '../messages';
+import { INIT_GAME, MOVE, GAME_OVER, RESIGN, OFFERING_DRAW, DRAW_ACCEPTED,DRAWED, DRAW_REJECTED } from '../messages';
 import { Chess } from 'chess.js';
 import VictoryMessage from './VictoryMessage';
 import DefeatMessage from './DefeatMessage';
-import OfferDrawMessage from './offerDrawMessage';
+import OfferDrawMessage from './OfferDrawMessage';
+import DrawResultMessage from './DrawResultMessage';
+import PendingDrawMessage from './PendingDrawMessage';
 interface moveType {
     from: string,
     to: string
@@ -30,6 +32,7 @@ const Game = () => {
     const [showDefeatMessage, setShowDefeatMessage] = useState<boolean>(false);
     const [showDrawOffer, setShowDrawOffer] = useState<boolean>(false);
     const [showDrawResult, setShowDrawResult] = useState<boolean>(false);
+    const [pendingDraw,setPendingDraw]=useState<boolean>(false)
     const navigate = useNavigate();
     const socket = useSocket();
     const hasResult = showVictoryMessage || showDefeatMessage;
@@ -85,6 +88,7 @@ const Game = () => {
         if (socket && socket.readyState === WebSocket.OPEN) {
             try {
                 socket.send(JSON.stringify({ type: OFFERING_DRAW }))
+                setPendingDraw(true)
             } catch (err) {
                 console.error("Failed to send draw offer:", err)
             }
@@ -148,6 +152,12 @@ const Game = () => {
                 case OFFERING_DRAW:
                     setShowDrawOffer(true);
                     break;
+                case DRAWED:
+                    setPendingDraw(false);
+                    setShowDrawResult(true)
+                    handleLeaveGame()
+                case DRAW_REJECTED:
+                    setPendingDraw(false);    
                 default:
                     console.log("Invalid message")
             }
@@ -201,6 +211,55 @@ const Game = () => {
                         </div>
                     </div>
                 )}
+                {
+                    showDrawResult &&(
+                          <div className="fixed inset-0 z-40 flex items-center justify-center px-4">
+                        <div className="absolute inset-0 bg-black/70 backdrop-blur-lg" />
+                        <div className="relative z-10 w-full max-w-lg">
+                            <DrawResultMessage
+                                handleGoHome={handleGoHome}
+                                message="accepted"
+                                onOpen={() => setShowDrawOffer(true)}
+                                onClose={() => {
+                                    setShowDrawOffer(false)
+                                }}
+                            />
+                        </div>
+                    </div>
+                    )
+                }
+                {
+                    showDrawResult &&(
+                          <div className="fixed inset-0 z-40 flex items-center justify-center px-4">
+                        <div className="absolute inset-0 bg-black/70 backdrop-blur-lg" />
+                        <div className="relative z-10 w-full max-w-lg">
+                            <DrawResultMessage
+                                handleGoHome={handleGoHome}
+                                message="accepted"
+                                onOpen={() => setShowDrawOffer(true)}
+                                onClose={() => {
+                                    setShowDrawOffer(false)
+                                }}
+                            />
+                        </div>
+                    </div>
+                    )
+                }
+                {
+                    pendingDraw &&(
+                          <div className="fixed inset-0 z-40 flex items-center justify-center px-4">
+                        <div className="absolute inset-0 bg-black/70 backdrop-blur-lg" />
+                        <div className="relative z-10 w-full max-w-lg">
+                            <PendingDrawMessage
+                                onOpen={() => setShowDrawOffer(true)}
+                                onClose={() => {
+                                    setShowDrawOffer(false)
+                                }}
+                            />
+                        </div>
+                    </div>
+                    )
+                }
                 <div className="absolute inset-0 overflow-hidden"></div>
             {/* Enhanced Animated background elements */}
             <div className="absolute inset-0 overflow-hidden">
