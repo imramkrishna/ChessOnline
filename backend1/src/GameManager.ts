@@ -1,6 +1,6 @@
-import { WebSocket } from "ws"
-import { INIT_GAME, MOVE, RESIGN } from "./messages"
-import { Game } from "./Game"
+import {WebSocket} from "ws"
+import {DRAW_ACCEPTED, DRAW_REJECTED, DRAWED, IN_PROGRESS, INIT_GAME, MOVE, OFFERING_DRAW, RESIGN} from "./messages"
+import {Game} from "./Game"
 
 export class GameManager {
     private games: Game[]
@@ -71,9 +71,62 @@ export class GameManager {
                     }
                 }
             }
-            if(message.type === "draw_offer"){
-
+            if(message.type === OFFERING_DRAW){
+                const game=this.games.find(game=>game.player1===socket || game.player2===socket)
+                if(game){
+                    if(game.player1===socket){
+                        game.gameStatus={
+                            gameSituation:OFFERING_DRAW,
+                            offeredBy:socket,
+                            offeredTo:game.player2,
+                            offerTime:new Date()
+                        }
+                        game.player2.send(JSON.stringify({
+                            type:OFFERING_DRAW
+                        }))
+                    }else{
+                        game.gameStatus={
+                            gameSituation:OFFERING_DRAW,
+                            offeredBy:socket,
+                            offeredTo:game.player1,
+                            offerTime:new Date()
+                        }
+                        game.player1.send(JSON.stringify({
+                            type:OFFERING_DRAW
+                        }))
+                    }
+                }
             }
+            if(message.type === DRAW_ACCEPTED){
+                const game=this.games.find(game=>game.player1===socket || game.player2===socket)
+                if(game){
+                    if(game.gameStatus.gameSituation===OFFERING_DRAW && game.gameStatus.offeredTo===socket){
+                        game.gameStatus= {
+                            gameSituation: DRAWED
+                        }
+                        game.player1.send(JSON.stringify({
+                            type:DRAWED
+                        }))
+                        game.player2.send(JSON.stringify({
+                            type:DRAWED
+                        }))
+                    }
+                }
+            }
+            if(message.type === DRAW_REJECTED){
+                const game=this.games.find(game=>game.player1===socket || game.player2===socket)
+                if(game){
+                    if(game.gameStatus.gameSituation===OFFERING_DRAW && game.gameStatus.offeredTo===socket){
+                        game.gameStatus= {
+                            gameSituation: IN_PROGRESS
+                        }
+                        game.player1.send(JSON.stringify({
+                            type:DRAW_REJECTED
+                        }))
+                    }
+                }
+            }
+
         })
     }
 }

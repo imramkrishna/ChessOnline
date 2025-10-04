@@ -4,9 +4,11 @@ backend# Ignore node_modules in all directories
 # Ignore dist or build folders in all directories
 **/dist/
 **/build/
+**/.idea/
 
 # Environment files
 **/.env
+
 
 # Logs
 **/logs/

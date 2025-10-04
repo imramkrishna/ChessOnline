@@ -1,6 +1,6 @@
 import { WebSocket } from "ws";
 import { Chess } from "chess.js"
-import { GAME_OVER, INIT_GAME, MOVE } from "./messages";
+import { GAME_OVER, INIT_GAME, MOVE,OFFERING_DRAW,RESIGN,IN_PROGRESS,DRAWED } from "./messages";
 interface moveType {
     from: string;
     to: string
@@ -10,11 +10,18 @@ interface Moves{
     moveTime: Date,
     move: moveType
 }
+interface GameStatus{
+    gameSituation:typeof OFFERING_DRAW | typeof IN_PROGRESS | typeof DRAWED  | typeof RESIGN | typeof GAME_OVER
+    offeredBy?:WebSocket
+    offerTime?:Date
+    offeredTo?:WebSocket
+}
 export class Game {
     public player1: WebSocket
     public player2: WebSocket
     private board: Chess
     private moves: Moves[]
+    public gameStatus:GameStatus
     private startTime: Date
     constructor(player1: WebSocket, player2: WebSocket) {
         this.player1 = player1
@@ -22,6 +29,9 @@ export class Game {
         this.board = new Chess()
         this.moves = []
         this.startTime = new Date()
+        this.gameStatus={
+            gameSituation:IN_PROGRESS
+        }
         this.player1.send(JSON.stringify({
             type: INIT_GAME,
             payload: {
