@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react'
 import ChessBoard from './ChessBoard'
 import { useNavigate } from 'react-router-dom'
 import { useSocket } from '../hooks/useSocket';
-import { INIT_GAME, MOVE, GAME_OVER, RESIGN } from '../messages';
+import { INIT_GAME, MOVE, GAME_OVER, RESIGN, OFFERING_DRAW, DRAW_ACCEPTED } from '../messages';
 import { Chess } from 'chess.js';
 import VictoryMessage from './VictoryMessage';
 import DefeatMessage from './DefeatMessage';
+import OfferDrawMessage from './offerDrawMessage';
 interface moveType {
     from: string,
     to: string
@@ -27,6 +28,8 @@ const Game = () => {
     const [moveCount, setMoveCount] = useState(1);
     const [showVictoryMessage, setShowVictoryMessage] = useState<boolean>(false);
     const [showDefeatMessage, setShowDefeatMessage] = useState<boolean>(false);
+    const [showDrawOffer, setShowDrawOffer] = useState<boolean>(false);
+    const [showDrawResult, setShowDrawResult] = useState<boolean>(false);
     const navigate = useNavigate();
     const socket = useSocket();
     const hasResult = showVictoryMessage || showDefeatMessage;
@@ -78,7 +81,18 @@ const Game = () => {
         console.log('Leaving game...');
         socket?.send(JSON.stringify({ type: GAME_OVER }));
     };
-
+    const handleDraw = () => {
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            try {
+                socket.send(JSON.stringify({ type: OFFERING_DRAW }))
+            } catch (err) {
+                console.error("Failed to send draw offer:", err)
+            }
+        } else {
+            console.warn("Socket not connected, cannot offer draw.")
+            navigate("/")
+        }
+    }
     const handleGoHome = () => {
         handleLeaveGame();
         navigate('/');
@@ -131,11 +145,24 @@ const Game = () => {
                     setGameStatus('ended');
                     console.log("Opponent resigned. You win!");
                     break;
+                case OFFERING_DRAW:
+                    setShowDrawOffer(true);
+                    break;
                 default:
                     console.log("Invalid message")
             }
         }
     }, [socket])
+    const acceptDraw=() => {
+        setShowDrawOffer(false);
+        setGameStarted(false);
+        setGameStatus('ended');
+        socket?.send(JSON.stringify({type:DRAW_ACCEPTED}))
+    }
+    const rejectDraw=()=>{
+        setShowDrawOffer(false);
+        socket?.send(JSON.stringify({type:"draw_rejected"}))
+    }
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-x-hidden overflow-y-auto">
             {
@@ -155,6 +182,22 @@ const Game = () => {
                                     onClose={() => setShowDefeatMessage(false)}
                                 />
                             )}
+                        </div>
+                    </div>
+                )}
+                {
+                showDrawOffer && (
+                    <div className="fixed inset-0 z-40 flex items-center justify-center px-4">
+                        <div className="absolute inset-0 bg-black/70 backdrop-blur-lg" />
+                        <div className="relative z-10 w-full max-w-lg">
+                            <OfferDrawMessage
+                                onAccept={acceptDraw}
+                                onReject={rejectDraw}
+                                onOpen={() => setShowDrawOffer(true)}
+                                onClose={() => {
+                                    setShowDrawOffer(false)
+                                }}
+                            />
                         </div>
                     </div>
                 )}
@@ -357,7 +400,9 @@ const Game = () => {
                                             </button>
 
                                             <div className="grid grid-cols-2 gap-2 lg:gap-3">
-                                                <button className="group bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-2 px-2 lg:px-3 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl relative overflow-hidden">
+                                                <button
+                                                onClick={handleDraw}
+                                                 className="group bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold py-2 px-2 lg:px-3 rounded-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl relative overflow-hidden">
                                                     <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                                     <div className="relative flex flex-col items-center justify-center space-y-1">
                                                         <span className="text-lg">�</span>
