@@ -12,15 +12,21 @@ import {
     RESIGN, ROOM_CREATED
 } from "./messages"
 import Game from "./Game"
-import {PrivateGameManager} from "./PrivateGameManager";
+interface PendingPrivateUsers{
+    player1: WebSocket,
+    privateKey:String | null,
+    player2?: WebSocket,
+}
 export class GameManager {
     private games: Game[]
     private pendingUsers: WebSocket | null
     private users: WebSocket[]
+    public pendingPrivateUsers:PendingPrivateUsers[]
     constructor() {
         this.games = []
         this.pendingUsers = null
         this.users = []
+        this.pendingPrivateUsers=[];
     }
     addUser(socket: WebSocket) {
         this.users.push(socket)
@@ -33,20 +39,20 @@ export class GameManager {
         socket.on("message", (data) => {
             const message = JSON.parse(data.toString())
             if(message.type === CREATE_ROOM) {
-                const privateGameManager=new PrivateGameManager()
-                privateGameManager.addUser(socket)
-                privateGameManager.addHandler(socket)
-                socket.send(JSON.stringify(
-                    {
-                        type: ROOM_CREATED,
-                        roomId:privateGameManager.privateKey
-                    }
-                ))
-                this.users.filter(u => u !== socket)
+                const newPlayer= {
+                    player1: socket,
+                    privateKey: generatePrivateKey()
+                }
+                this.pendingPrivateUsers.push(newPlayer)
             }
             if(message.type === JOIN_ROOM) {
-                const privateKey=message.privateKey
-
+                const privateKey=message.roomID
+                const room=this.pendingPrivateUsers.find(u=>u.privateKey === privateKey)
+                if(room){
+                    const game=new Game(room.player1,socket)
+                    this.games.push(game)
+                    this.pendingPrivateUsers.filter(u=>u.privateKey === privateKey)
+                }
             }
             if (message.type === INIT_GAME) {
                 if (this.pendingUsers) {
