@@ -156,8 +156,10 @@ const Game = () => {
                     setPendingDraw(false);
                     setShowDrawResult(true)
                     handleLeaveGame()
+                    break;
                 case DRAW_REJECTED:
-                    setPendingDraw(false);    
+                    setPendingDraw(false);
+                    break;    
                 default:
                     console.log("Invalid message")
             }
