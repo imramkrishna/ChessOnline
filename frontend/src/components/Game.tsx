@@ -173,7 +173,7 @@ const Game = () => {
     }
     const rejectDraw=()=>{
         setShowDrawOffer(false);
-        socket?.send(JSON.stringify({type:"draw_rejected"}))
+        socket?.send(JSON.stringify({type:DRAW_REJECTED}))
     }
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-x-hidden overflow-y-auto">
@@ -450,7 +450,7 @@ const Game = () => {
                                     {gameStarted ? (
                                         <>
                                             <button
-                                                onClick={handleLeaveGame}
+                                                onClick={handleResign}
                                                 className="group w-full bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-semibold py-2 lg:py-3 px-3 lg:px-4 rounded-lg lg:rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl relative overflow-hidden"
                                             >
                                                 <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>

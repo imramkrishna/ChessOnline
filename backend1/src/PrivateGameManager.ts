@@ -1,26 +1,18 @@
-import {WebSocket} from "ws"
+import {PrivateGame as Game} from "./PrivateGame";
+import {INIT_GAME,RESIGN,IN_PROGRESS,OFFERING_DRAW,DRAWED,DRAW_ACCEPTED,DRAW_REJECTED,CREATE_ROOM,JOIN_ROOM} from "./messages";
+import {WebSocket} from "ws";
+import {MOVE} from "./messages";
 import generatePrivateKey from "./utils/generatePrivateKey";
-import {
-    CREATE_ROOM,
-    DRAW_ACCEPTED,
-    DRAW_REJECTED,
-    DRAWED,
-    IN_PROGRESS,
-    INIT_GAME, JOIN_ROOM,
-    MOVE,
-    OFFERING_DRAW,
-    RESIGN, ROOM_CREATED
-} from "./messages"
-import Game from "./Game"
-import {PrivateGameManager} from "./PrivateGameManager";
-export class GameManager {
+export class PrivateGameManager {
     private games: Game[]
     private pendingUsers: WebSocket | null
     private users: WebSocket[]
+    public privateKey:String
     constructor() {
         this.games = []
         this.pendingUsers = null
         this.users = []
+        this.privateKey=generatePrivateKey()
     }
     addUser(socket: WebSocket) {
         this.users.push(socket)
@@ -29,25 +21,9 @@ export class GameManager {
     removeUser(socket: WebSocket) {
         this.users = this.users.filter(u => u !== socket)
     }
-    private addHandler(socket: WebSocket) {
+    public addHandler(socket: WebSocket) {
         socket.on("message", (data) => {
             const message = JSON.parse(data.toString())
-            if(message.type === CREATE_ROOM) {
-                const privateGameManager=new PrivateGameManager()
-                privateGameManager.addUser(socket)
-                privateGameManager.addHandler(socket)
-                socket.send(JSON.stringify(
-                    {
-                        type: ROOM_CREATED,
-                        roomId:privateGameManager.privateKey
-                    }
-                ))
-                this.users.filter(u => u !== socket)
-            }
-            if(message.type === JOIN_ROOM) {
-                const privateKey=message.privateKey
-
-            }
             if (message.type === INIT_GAME) {
                 if (this.pendingUsers) {
                     const game = new Game(this.pendingUsers, socket);
@@ -57,6 +33,10 @@ export class GameManager {
                     this.pendingUsers = socket
                 }
 
+            }
+            if(message.type === CREATE_ROOM){
+                const privateGameManager = new PrivateGameManager();
+                privateGameManager.addUser(socket);
             }
             if (message.type === MOVE) {
                 const game = this.games.find(game => game.player1 === socket || game.player2 === socket)

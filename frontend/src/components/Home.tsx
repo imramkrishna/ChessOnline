@@ -1,15 +1,54 @@
 import { useNavigate } from 'react-router-dom'
-
+import { useSocket } from '../hooks/useSocket';
+import { useState } from 'react';
+import PrivateRoomModal from './Room/PrivateRoomModal';
+import JoinRoomModal from './Room/JoinRoomModal';
+import WaitingForOpponentModal from './Room/WaitingForOpponentModal';
 const Home = () => {
+    const socket = useSocket();
     const navigate = useNavigate();
+    const [showPrivateRoomModal, setShowPrivateRoomModal] = useState(false);
+    const [showJoinRoomModal, setShowJoinRoomModal] = useState(false);
+    const [showWaitingModal, setShowWaitingModal] = useState(false);
+    const [currentRoomId, setCurrentRoomId] = useState('');
 
     const handleJoinRoom = () => {
         navigate("/game")
     }
 
+    const handlePrivateRoomClick = () => {
+        setShowPrivateRoomModal(true);
+    };
+
     const handleCreateRoom = () => {
-        // Add create room functionality
-    }
+        // Generate a random room ID
+        const roomId = Math.random().toString(36).substring(2, 8).toUpperCase();
+        setCurrentRoomId(roomId);
+        setShowPrivateRoomModal(false);
+        setShowWaitingModal(true);
+        
+        // TODO: Send room creation request to backend
+        // socket?.send(JSON.stringify({ type: 'CREATE_PRIVATE_ROOM', roomId }));
+    };
+
+    const handleJoinRoomClick = () => {
+        setShowPrivateRoomModal(false);
+        setShowJoinRoomModal(true);
+    };
+
+    const handleJoinWithRoomId = (roomId: string) => {
+        setShowJoinRoomModal(false);
+        // TODO: Send join room request to backend
+        // socket?.send(JSON.stringify({ type: 'JOIN_PRIVATE_ROOM', roomId }));
+        navigate("/game", { state: { roomId, isPrivate: true } });
+    };
+
+    const handleCancelWaiting = () => {
+        setShowWaitingModal(false);
+        setCurrentRoomId('');
+        // TODO: Send cancel room request to backend
+        // socket?.send(JSON.stringify({ type: 'CANCEL_PRIVATE_ROOM', roomId: currentRoomId }));
+    };
 
     return (
         <div className="min-h-screen w-full bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative">
@@ -90,13 +129,13 @@ const Home = () => {
 
                                     {/* Create Private Room Button */}
                                     <button
-                                        onClick={handleCreateRoom}
+                                        onClick={handlePrivateRoomClick}
                                         className="group w-full bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-700 hover:via-teal-700 hover:to-cyan-700 text-white text-lg lg:text-xl font-semibold py-4 lg:py-5 px-6 lg:px-8 rounded-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl relative overflow-hidden"
                                     >
                                         <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                         <div className="relative flex items-center justify-center space-x-3">
                                             <span className="text-2xl">🏰</span>
-                                            <span>Create Private Room</span>
+                                            <span>Private Room</span>
                                         </div>
                                     </button>
                                 </div>
@@ -162,6 +201,26 @@ const Home = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Modals */}
+            <PrivateRoomModal
+                isOpen={showPrivateRoomModal}
+                onClose={() => setShowPrivateRoomModal(false)}
+                onCreateRoom={handleCreateRoom}
+                onJoinRoom={handleJoinRoomClick}
+            />
+
+            <JoinRoomModal
+                isOpen={showJoinRoomModal}
+                onClose={() => setShowJoinRoomModal(false)}
+                onJoin={handleJoinWithRoomId}
+            />
+
+            <WaitingForOpponentModal
+                isOpen={showWaitingModal}
+                roomId={currentRoomId}
+                onCancel={handleCancelWaiting}
+            />
         </div>
     )
 }
