@@ -1,9 +1,10 @@
 import { useNavigate } from 'react-router-dom'
 import { useSocket } from '../hooks/useSocket';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import PrivateRoomModal from './Room/PrivateRoomModal';
 import JoinRoomModal from './Room/JoinRoomModal';
 import WaitingForOpponentModal from './Room/WaitingForOpponentModal';
+import { CREATE_ROOM, JOIN_ROOM, ROOM_CREATED, ROOM_JOINED } from '../messages';
 const Home = () => {
     const socket = useSocket();
     const navigate = useNavigate();
@@ -13,7 +14,7 @@ const Home = () => {
     const [currentRoomId, setCurrentRoomId] = useState('');
 
     const handleJoinRoom = () => {
-        navigate("/game")
+        navigate("/private-game")
     }
 
     const handlePrivateRoomClick = () => {
@@ -22,25 +23,22 @@ const Home = () => {
 
     const handleCreateRoom = () => {
         // Generate a random room ID
-        const roomId = Math.random().toString(36).substring(2, 8).toUpperCase();
-        setCurrentRoomId(roomId);
         setShowPrivateRoomModal(false);
         setShowWaitingModal(true);
+        socket?.send(JSON.stringify({ type: CREATE_ROOM }));
         
-        // TODO: Send room creation request to backend
-        // socket?.send(JSON.stringify({ type: 'CREATE_PRIVATE_ROOM', roomId }));
     };
 
     const handleJoinRoomClick = () => {
         setShowPrivateRoomModal(false);
         setShowJoinRoomModal(true);
+
     };
 
     const handleJoinWithRoomId = (roomId: string) => {
         setShowJoinRoomModal(false);
-        // TODO: Send join room request to backend
-        // socket?.send(JSON.stringify({ type: 'JOIN_PRIVATE_ROOM', roomId }));
-        navigate("/game", { state: { roomId, isPrivate: true } });
+        socket?.send(JSON.stringify({ type: JOIN_ROOM, roomId }));
+        navigate("/private-game", { state: { roomId, isPrivate: true } });
     };
 
     const handleCancelWaiting = () => {
@@ -49,6 +47,25 @@ const Home = () => {
         // TODO: Send cancel room request to backend
         // socket?.send(JSON.stringify({ type: 'CANCEL_PRIVATE_ROOM', roomId: currentRoomId }));
     };
+    useEffect(() => {
+        if (!socket) return;
+        socket.onmessage = (event) => {
+            const message = JSON.parse(event.data);
+            switch (message.type) {
+                case ROOM_CREATED:
+                    setCurrentRoomId(message.roomID);
+                    setShowWaitingModal(true);
+                    break;
+                case ROOM_JOINED:
+                    setShowWaitingModal(false);
+                    setCurrentRoomId('');
+                    navigate("/private-game", { state: { roomId: message.roomId, isPrivate: true } });
+                    break;    
+                default:
+                    break;
+            }
+        }
+    },[socket])
 
     return (
         <div className="min-h-screen w-full bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative">

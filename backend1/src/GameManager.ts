@@ -4,12 +4,12 @@ import {
     CREATE_ROOM,
     DRAW_ACCEPTED,
     DRAW_REJECTED,
-    DRAWED,
+    DRAWED, ERROR,
     IN_PROGRESS,
     INIT_GAME, JOIN_ROOM,
     MOVE,
     OFFERING_DRAW,
-    RESIGN, ROOM_CREATED
+    RESIGN, ROOM_CREATED, ROOM_JOINED
 } from "./messages"
 import Game from "./Game"
 interface PendingPrivateUsers{
@@ -44,6 +44,10 @@ export class GameManager {
                     privateKey: generatePrivateKey()
                 }
                 this.pendingPrivateUsers.push(newPlayer)
+                socket.send(JSON.stringify({
+                    type:ROOM_CREATED,
+                    roomID:newPlayer.privateKey
+                }))
             }
             if(message.type === JOIN_ROOM) {
                 const privateKey=message.roomID
@@ -52,6 +56,26 @@ export class GameManager {
                     const game=new Game(room.player1,socket)
                     this.games.push(game)
                     this.pendingPrivateUsers.filter(u=>u.privateKey === privateKey)
+                    game.player1.send(JSON.stringify({
+                        type:ROOM_JOINED,
+                        roomID:privateKey,
+                        payload:{
+                            color:"white"
+                        }
+                    }))
+                    game.player2.send(JSON.stringify({
+                        type:ROOM_JOINED,
+                        roomID:privateKey,
+                        payload:{
+                            color:"black"
+                        }
+                    }))
+                }
+                else{
+                    socket.send(JSON.stringify({
+                        type:ERROR,
+                        message:"Invalid Room ID"
+                    }))
                 }
             }
             if (message.type === INIT_GAME) {

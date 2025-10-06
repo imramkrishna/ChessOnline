@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-
+import { useSocket } from '../../hooks/useSocket';
+import { ERROR, JOIN_ROOM, ROOM_JOINED } from '../../messages';
 interface JoinRoomModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -14,26 +15,33 @@ const JoinRoomModal: React.FC<JoinRoomModalProps> = ({
 }) => {
   const [roomId, setRoomId] = useState('');
   const [error, setError] = useState('');
-
+  const socket= useSocket();
   const handleJoin = () => {
-    if (!roomId.trim()) {
-      setError('Please enter a room ID');
+    if(roomId.length===0){
+      setError('Room ID cannot be empty');
       return;
     }
-    if (roomId.length < 6) {
-      setError('Room ID must be at least 6 characters');
-      return;
-    }
-    setError('');
-    onJoin(roomId.trim());
+    socket?.send(JSON.stringify({ type: JOIN_ROOM, roomID: roomId }));
   };
-
   const handleClose = () => {
     setRoomId('');
     setError('');
     onClose();
   };
-
+  useEffect(() => {
+    if (!socket) return;
+    socket.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      if(message.type === ROOM_JOINED) {
+        onJoin(message.roomID);
+        handleClose();
+        setRoomId('');
+        setError('');
+      }
+      if (message.type === ERROR) {
+        setError(message.message);
+      }
+  }}, [socket]);
   return (
     <AnimatePresence>
       {isOpen && (
