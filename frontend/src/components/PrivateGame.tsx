@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import ChessBoard from './ChessBoard'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useSocket } from '../hooks/useSocket';
-import { INIT_GAME, MOVE, GAME_OVER, RESIGN, OFFERING_DRAW, DRAW_ACCEPTED,DRAWED, DRAW_REJECTED, ROOM_JOINED } from '../messages';
+import { MOVE, GAME_OVER, RESIGN, OFFERING_DRAW, DRAW_ACCEPTED,DRAWED, DRAW_REJECTED, ROOM_JOINED } from '../messages';
 import { Chess } from 'chess.js';
 import VictoryMessage from './VictoryMessage';
 import DefeatMessage from './DefeatMessage';
@@ -18,7 +18,12 @@ interface Moves {
     moveTime: Date,
     move: moveType
 }
+//get socket from location props
+
 const PrivateGame = () => {
+    const location=useLocation();
+    const{message,roomId,isPrivate}= location.state || {};
+    const socket = useSocket();
     const [gameStarted, setGameStarted] = useState(false);
     const [gameStatus, setGameStatus] = useState('waiting');
     const [gameTime, setGameTime] = useState(0);
@@ -34,9 +39,9 @@ const PrivateGame = () => {
     const [showDrawResult, setShowDrawResult] = useState<boolean>(false);
     const [pendingDraw,setPendingDraw]=useState<boolean>(false)
     const navigate = useNavigate();
-    const socket = useSocket();
     const hasResult = showVictoryMessage || showDefeatMessage;
     // Auto-connect when component mounts
+
     useEffect(() => {
         let timer: number;
         if (gameStarted) {
@@ -56,12 +61,6 @@ const PrivateGame = () => {
         const secs = (seconds % 60).toString().padStart(2, '0');
         return `${mins}:${secs}`;
     };
-    useEffect(() => {
-        if (socket && gameStatus === 'waiting' && !gameStarted) {
-            console.log('Auto-connecting to find opponent...');
-            socket.send(JSON.stringify({ type: INIT_GAME }));
-        }
-    }, [socket]);
     const handleResign = () => {
         if (socket && socket.readyState === WebSocket.OPEN) {
             try {
@@ -103,13 +102,27 @@ const PrivateGame = () => {
     };
     useEffect(() => {
         if (!socket) {
+            console.log("Socket not available, redirecting to home.");
             return
         }
-        socket.onmessage = (event) => {
+        if(message){
+            if (message.payload && message.payload.color) {
+                setPlayerColor(message.payload.color);
+                setGameStarted(true);
+                setGameStatus('playing');
+                setChess(new Chess());
+                setBoard(new Chess().board());
+                setCurrentTurn('w');
+                setMoveCount(1);
+            }
+        }
+        socket.onmessage = (event: MessageEvent) => {
             const message = JSON.parse(event.data);
+            console.log(message)
             switch (message.type) {
                 case ROOM_JOINED:
-                    // Only start game when server confirms both players joined
+                    console.log(`ROOM JOINED CASE WORKING RIGHT NOW`);
+                    console.log("Message payload: ",message.payload)
                     if (message.payload && message.payload.color) {
                         setPlayerColor(message.payload.color);
                         setGameStarted(true);
@@ -306,12 +319,7 @@ const PrivateGame = () => {
                                                     {playerColor}
                                                 </span>
                                             </span>
-                                        ) : (
-                                            <span className="flex items-center justify-center space-x-2">
-                                                <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
-                                                <span>Searching for opponent...</span>
-                                            </span>
-                                        )}
+                                        ):null}
                                     </p>
                                 </div>
 

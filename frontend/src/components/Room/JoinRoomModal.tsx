@@ -6,16 +6,17 @@ interface JoinRoomModalProps {
   isOpen: boolean;
   onClose: () => void;
   onJoin: (roomId: string) => void;
+  socket: WebSocket | null;
 }
 
 const JoinRoomModal: React.FC<JoinRoomModalProps> = ({
   isOpen,
   onClose,
   onJoin,
+  socket
 }) => {
   const [roomId, setRoomId] = useState('');
   const [error, setError] = useState('');
-  const socket= useSocket();
   const handleJoin = () => {
     if(roomId.length===0){
       setError('Room ID cannot be empty');

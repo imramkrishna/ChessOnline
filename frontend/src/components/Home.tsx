@@ -14,7 +14,7 @@ const Home = () => {
     const [currentRoomId, setCurrentRoomId] = useState('');
 
     const handleJoinRoom = () => {
-        navigate("/private-game")
+        navigate("/game");
     }
 
     const handlePrivateRoomClick = () => {
@@ -25,20 +25,17 @@ const Home = () => {
         // Generate a random room ID
         setShowPrivateRoomModal(false);
         setShowWaitingModal(true);
-        socket?.send(JSON.stringify({ type: CREATE_ROOM }));
-        
+        socket?.send(JSON.stringify({ type: CREATE_ROOM }));     
     };
 
     const handleJoinRoomClick = () => {
         setShowPrivateRoomModal(false);
         setShowJoinRoomModal(true);
-
     };
 
     const handleJoinWithRoomId = (roomId: string) => {
         setShowJoinRoomModal(false);
-        socket?.send(JSON.stringify({ type: JOIN_ROOM, roomId }));
-        navigate("/private-game", { state: { roomId, isPrivate: true } });
+        socket?.send(JSON.stringify({ type: JOIN_ROOM, roomID: roomId }));
     };
 
     const handleCancelWaiting = () => {
@@ -57,9 +54,11 @@ const Home = () => {
                     setShowWaitingModal(true);
                     break;
                 case ROOM_JOINED:
+                    console.log(`ROOM JOINED CASE WORKING RIGHT NOW`);
+                    console.log("Message payload: ",message.payload)
                     setShowWaitingModal(false);
                     setCurrentRoomId('');
-                    navigate("/private-game", { state: { roomId: message.roomId, isPrivate: true } });
+                    navigate("/private-game", { state: { roomId: message.roomID, isPrivate: true,message } });
                     break;    
                 default:
                     break;
@@ -230,6 +229,7 @@ const Home = () => {
             <JoinRoomModal
                 isOpen={showJoinRoomModal}
                 onClose={() => setShowJoinRoomModal(false)}
+                socket={socket}
                 onJoin={handleJoinWithRoomId}
             />
 
@@ -237,6 +237,7 @@ const Home = () => {
                 isOpen={showWaitingModal}
                 roomId={currentRoomId}
                 onCancel={handleCancelWaiting}
+              
             />
         </div>
     )
