@@ -6,7 +6,7 @@ export interface moveType {
     to: string
 }
 export interface Moves{
-    player: WebSocket,
+    player: string,
     moveTime: Date,
     move: moveType
 }
@@ -66,7 +66,7 @@ export class Game {
         }
         if (this.board.moves.length % 2 == 0) {
              let newMove={
-                player:this.player1,
+                player:"white",
                 moveTime:new Date(),
                 move:move
             }
@@ -89,7 +89,7 @@ export class Game {
         }
         else {
             let newMove={
-                player:this.player2,
+                player:"black",
                 moveTime:new Date(),
                 move:move
             }
