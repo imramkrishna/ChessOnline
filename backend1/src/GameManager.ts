@@ -28,12 +28,12 @@ export class GameManager {
         this.users = []
         this.pendingPrivateUsers=[];
     }
+    removeUser(socket: WebSocket) {
+        this.users = this.users.filter(u => u !== socket)
+    }
     addUser(socket: WebSocket) {
         this.users.push(socket)
         this.addHandler(socket)
-    }
-    removeUser(socket: WebSocket) {
-        this.users = this.users.filter(u => u !== socket)
     }
     private addHandler(socket: WebSocket) {
         socket.on("message", (data) => {
