@@ -1,1 +1,1 @@
-{"root":["./src/game.ts","./src/gamemanager.ts","./src/index.ts","./src/messages.ts","./src/utils/generateprivatekey.ts","./src/utils/types.ts"],"version":"5.7.3"}
+{"root":["./src/game.ts","./src/gamemanager.ts","./src/index.ts","./src/messages.ts","./src/utils/generateprivatekey.ts","./src/utils/types.ts"],"version":"5.9.3"}

@@ -33,14 +33,14 @@ const PrivateRoomModal: React.FC<PrivateRoomModalProps> = ({
             transition={{ duration: 0.3, ease: 'easeOut' }}
             className="relative z-10 w-full max-w-md"
           >
-            <div className="bg-gradient-to-br from-slate-900/95 via-purple-900/95 to-slate-900/95 backdrop-blur-2xl text-white p-8 rounded-3xl border border-white/20 shadow-2xl">
+            <div className="bg-[#1E1E1E] backdrop-blur-2xl text-white p-8 rounded-3xl border border-[#BB86FC]/40 shadow-2xl">
               {/* Header */}
               <div className="text-center mb-8">
                 <div className="text-5xl mb-4">🏰</div>
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
+                <h2 className="text-3xl font-bold bg-gradient-to-r from-[#BB86FC] to-[#03DAC6] bg-clip-text text-transparent mb-2">
                   Private Room
                 </h2>
-                <p className="text-gray-300 text-sm">
+                <p className="text-white/70 text-sm">
                   Create a room or join with a room ID
                 </p>
               </div>
@@ -49,7 +49,7 @@ const PrivateRoomModal: React.FC<PrivateRoomModalProps> = ({
               <div className="space-y-4">
                 <button
                   onClick={onCreateRoom}
-                  className="group w-full bg-gradient-to-r from-purple-600 via-purple-700 to-blue-600 hover:from-purple-700 hover:via-purple-800 hover:to-blue-700 text-white text-lg font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl shadow-purple-500/30 relative overflow-hidden"
+                  className="group w-full bg-[#BB86FC] hover:bg-[#BB86FC]/80 text-[#121212] text-lg font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl shadow-[#BB86FC]/30 relative overflow-hidden"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="relative flex items-center justify-center space-x-3">
@@ -60,7 +60,7 @@ const PrivateRoomModal: React.FC<PrivateRoomModalProps> = ({
 
                 <button
                   onClick={onJoinRoom}
-                  className="group w-full bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-700 hover:via-teal-700 hover:to-cyan-700 text-white text-lg font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl shadow-emerald-500/30 relative overflow-hidden"
+                  className="group w-full bg-[#03DAC6] hover:bg-[#03DAC6]/80 text-[#121212] text-lg font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl shadow-[#03DAC6]/30 relative overflow-hidden"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="relative flex items-center justify-center space-x-3">
@@ -71,7 +71,7 @@ const PrivateRoomModal: React.FC<PrivateRoomModalProps> = ({
 
                 <button
                   onClick={onClose}
-                  className="w-full bg-white/10 hover:bg-white/20 text-white text-base font-medium py-3 px-6 rounded-xl transition-all duration-300 border border-white/20"
+                  className="w-full bg-[#121212] hover:bg-[#252525] text-white text-base font-medium py-3 px-6 rounded-xl transition-all duration-300 border border-[#BB86FC]/30"
                 >
                   Cancel
                 </button>

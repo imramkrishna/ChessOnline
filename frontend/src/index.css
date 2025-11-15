@@ -11,8 +11,8 @@ body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
-  background: #0f172a;
-  /* Fallback background color matching your gradient */
+  background: #121212;
+  /* Material dark background */
 }
 
 /* Ensure root container fills viewport */

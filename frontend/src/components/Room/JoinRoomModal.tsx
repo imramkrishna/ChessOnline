@@ -62,14 +62,14 @@ const JoinRoomModal: React.FC<JoinRoomModalProps> = ({
             transition={{ duration: 0.3, ease: 'easeOut' }}
             className="relative z-10 w-full max-w-md"
           >
-            <div className="bg-gradient-to-br from-slate-900/95 via-purple-900/95 to-slate-900/95 backdrop-blur-2xl text-white p-8 rounded-3xl border border-white/20 shadow-2xl">
+            <div className="bg-[#1E1E1E] backdrop-blur-2xl text-white p-8 rounded-3xl border border-[#BB86FC]/40 shadow-2xl">
               {/* Header */}
               <div className="text-center mb-8">
                 <div className="text-5xl mb-4">🔑</div>
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent mb-2">
+                <h2 className="text-3xl font-bold bg-gradient-to-r from-[#BB86FC] to-[#03DAC6] bg-clip-text text-transparent mb-2">
                   Join Private Room
                 </h2>
-                <p className="text-gray-300 text-sm">
+                <p className="text-white/70 text-sm">
                   Enter the room ID to join the game
                 </p>
               </div>
@@ -77,7 +77,7 @@ const JoinRoomModal: React.FC<JoinRoomModalProps> = ({
               {/* Input */}
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                  <label className="block text-sm font-medium text-white/70 mb-2">
                     Room ID
                   </label>
                   <input
@@ -88,14 +88,14 @@ const JoinRoomModal: React.FC<JoinRoomModalProps> = ({
                       setError('');
                     }}
                     placeholder="Enter room ID"
-                    className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-300"
+                    className="w-full bg-[#121212] border border-[#BB86FC]/30 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#03DAC6] focus:border-transparent transition-all duration-300"
                     maxLength={20}
                   />
                   {error && (
                     <motion.p
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="text-red-400 text-sm mt-2"
+                      className="text-[#BB86FC] text-sm mt-2"
                     >
                       {error}
                     </motion.p>
@@ -106,7 +106,7 @@ const JoinRoomModal: React.FC<JoinRoomModalProps> = ({
                 <button
                   onClick={handleJoin}
                   disabled={!roomId.trim()}
-                  className="group w-full bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-700 hover:via-teal-700 hover:to-cyan-700 disabled:from-gray-600 disabled:via-gray-700 disabled:to-gray-800 disabled:cursor-not-allowed text-white text-lg font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl shadow-emerald-500/30 disabled:shadow-none disabled:hover:scale-100 relative overflow-hidden"
+                  className="group w-full bg-[#03DAC6] hover:bg-[#03DAC6]/80 disabled:bg-[#252525] disabled:cursor-not-allowed text-[#121212] disabled:text-white/40 text-lg font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl shadow-[#03DAC6]/30 disabled:shadow-none disabled:hover:scale-100 relative overflow-hidden"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="relative flex items-center justify-center space-x-3">
@@ -117,7 +117,7 @@ const JoinRoomModal: React.FC<JoinRoomModalProps> = ({
 
                 <button
                   onClick={handleClose}
-                  className="w-full bg-white/10 hover:bg-white/20 text-white text-base font-medium py-3 px-6 rounded-xl transition-all duration-300 border border-white/20"
+                  className="w-full bg-[#121212] hover:bg-[#252525] text-white text-base font-medium py-3 px-6 rounded-xl transition-all duration-300 border border-[#BB86FC]/30"
                 >
                   Cancel
                 </button>
