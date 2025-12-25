@@ -1,6 +1,9 @@
 import { WebSocketServer } from "ws";
 import { GameManager } from "./GameManager";
-const wss = new WebSocketServer({ port: 8000 })
+import dotenv from "dotenv";
+dotenv.config();
+const port = process.env.PORT;
+const wss = new WebSocketServer({ port: Number(port) });
 const gameManager = new GameManager();
 wss.on("connection", function connection(ws) {
     console.log("New client connected");
