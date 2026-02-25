@@ -4,7 +4,7 @@ import Game from "./components/Game"
 import PrivateGame from "./components/PrivateGame"
 function App() {
   return (
-    <div className="min-h-screen w-full bg-[#121212] flex items-center justify-center p-4">
+    <div className="min-h-screen w-full bg-[#e8e5e0]">
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />

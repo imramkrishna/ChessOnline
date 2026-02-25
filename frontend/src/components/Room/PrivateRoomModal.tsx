@@ -33,14 +33,14 @@ const PrivateRoomModal: React.FC<PrivateRoomModalProps> = ({
             transition={{ duration: 0.3, ease: 'easeOut' }}
             className="relative z-10 w-full max-w-md"
           >
-            <div className="bg-[#1E1E1E] backdrop-blur-2xl text-white p-8 rounded-3xl border border-[#BB86FC]/40 shadow-2xl">
+            <div className="bg-white/95 backdrop-blur-xl text-[#1a1a1a] p-8 rounded-3xl border border-black/[0.06] shadow-[0_8px_40px_rgba(0,0,0,0.12)]">
               {/* Header */}
               <div className="text-center mb-8">
                 <div className="text-5xl mb-4">🏰</div>
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-[#BB86FC] to-[#03DAC6] bg-clip-text text-transparent mb-2">
+                <h2 className="text-3xl font-bold text-[#1a1a1a] mb-2">
                   Private Room
                 </h2>
-                <p className="text-white/70 text-sm">
+                <p className="text-[#888] text-sm">
                   Create a room or join with a room ID
                 </p>
               </div>
@@ -49,9 +49,8 @@ const PrivateRoomModal: React.FC<PrivateRoomModalProps> = ({
               <div className="space-y-4">
                 <button
                   onClick={onCreateRoom}
-                  className="group w-full bg-[#BB86FC] hover:bg-[#BB86FC]/80 text-[#121212] text-lg font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl shadow-[#BB86FC]/30 relative overflow-hidden"
+                  className="group w-full bg-[#1a1a1a] hover:bg-[#333] text-white text-lg font-semibold py-4 px-6 rounded-xl transition-all duration-300 hover:shadow-lg relative overflow-hidden"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="relative flex items-center justify-center space-x-3">
                     <span className="text-xl">➕</span>
                     <span>Create New Room</span>
@@ -60,9 +59,8 @@ const PrivateRoomModal: React.FC<PrivateRoomModalProps> = ({
 
                 <button
                   onClick={onJoinRoom}
-                  className="group w-full bg-[#03DAC6] hover:bg-[#03DAC6]/80 text-[#121212] text-lg font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl shadow-[#03DAC6]/30 relative overflow-hidden"
+                  className="group w-full bg-[#f5f5f3] hover:bg-[#eee] text-[#1a1a1a] text-lg font-semibold py-4 px-6 rounded-xl transition-all duration-300 hover:shadow-lg border border-black/[0.06] relative overflow-hidden"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="relative flex items-center justify-center space-x-3">
                     <span className="text-xl">🔑</span>
                     <span>Join Room</span>
@@ -71,7 +69,7 @@ const PrivateRoomModal: React.FC<PrivateRoomModalProps> = ({
 
                 <button
                   onClick={onClose}
-                  className="w-full bg-[#121212] hover:bg-[#252525] text-white text-base font-medium py-3 px-6 rounded-xl transition-all duration-300 border border-[#BB86FC]/30"
+                  className="w-full bg-transparent hover:bg-black/[0.04] text-[#888] text-base font-medium py-3 px-6 rounded-xl transition-all duration-300 border border-black/[0.06]"
                 >
                   Cancel
                 </button>

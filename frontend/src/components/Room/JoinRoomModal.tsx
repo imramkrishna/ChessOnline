@@ -62,14 +62,14 @@ const JoinRoomModal: React.FC<JoinRoomModalProps> = ({
             transition={{ duration: 0.3, ease: 'easeOut' }}
             className="relative z-10 w-full max-w-md"
           >
-            <div className="bg-[#1E1E1E] backdrop-blur-2xl text-white p-8 rounded-3xl border border-[#BB86FC]/40 shadow-2xl">
+            <div className="bg-white/95 backdrop-blur-xl text-[#1a1a1a] p-8 rounded-3xl border border-black/[0.06] shadow-[0_8px_40px_rgba(0,0,0,0.12)]">
               {/* Header */}
               <div className="text-center mb-8">
                 <div className="text-5xl mb-4">🔑</div>
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-[#BB86FC] to-[#03DAC6] bg-clip-text text-transparent mb-2">
+                <h2 className="text-3xl font-bold text-[#1a1a1a] mb-2">
                   Join Private Room
                 </h2>
-                <p className="text-white/70 text-sm">
+                <p className="text-[#888] text-sm">
                   Enter the room ID to join the game
                 </p>
               </div>
@@ -77,7 +77,7 @@ const JoinRoomModal: React.FC<JoinRoomModalProps> = ({
               {/* Input */}
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-white/70 mb-2">
+                  <label className="block text-sm font-medium text-[#555] mb-2">
                     Room ID
                   </label>
                   <input
@@ -88,14 +88,14 @@ const JoinRoomModal: React.FC<JoinRoomModalProps> = ({
                       setError('');
                     }}
                     placeholder="Enter room ID"
-                    className="w-full bg-[#121212] border border-[#BB86FC]/30 rounded-xl px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#03DAC6] focus:border-transparent transition-all duration-300"
+                    className="w-full bg-[#f5f5f3] border border-black/[0.06] rounded-xl px-4 py-3 text-[#1a1a1a] placeholder-[#aaa] focus:outline-none focus:ring-2 focus:ring-[#1a1a1a] focus:border-transparent transition-all duration-300"
                     maxLength={20}
                   />
                   {error && (
                     <motion.p
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="text-[#BB86FC] text-sm mt-2"
+                      className="text-[#c84032] text-sm mt-2"
                     >
                       {error}
                     </motion.p>
@@ -106,9 +106,8 @@ const JoinRoomModal: React.FC<JoinRoomModalProps> = ({
                 <button
                   onClick={handleJoin}
                   disabled={!roomId.trim()}
-                  className="group w-full bg-[#03DAC6] hover:bg-[#03DAC6]/80 disabled:bg-[#252525] disabled:cursor-not-allowed text-[#121212] disabled:text-white/40 text-lg font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl shadow-[#03DAC6]/30 disabled:shadow-none disabled:hover:scale-100 relative overflow-hidden"
+                  className="group w-full bg-[#1a1a1a] hover:bg-[#333] disabled:bg-[#e5e5e5] disabled:cursor-not-allowed text-white disabled:text-[#aaa] text-lg font-semibold py-4 px-6 rounded-xl transition-all duration-300 hover:shadow-lg disabled:shadow-none disabled:hover:scale-100 relative overflow-hidden"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <div className="relative flex items-center justify-center space-x-3">
                     <span className="text-xl">🚀</span>
                     <span>Join Room</span>
@@ -117,7 +116,7 @@ const JoinRoomModal: React.FC<JoinRoomModalProps> = ({
 
                 <button
                   onClick={handleClose}
-                  className="w-full bg-[#121212] hover:bg-[#252525] text-white text-base font-medium py-3 px-6 rounded-xl transition-all duration-300 border border-[#BB86FC]/30"
+                  className="w-full bg-transparent hover:bg-black/[0.04] text-[#888] text-base font-medium py-3 px-6 rounded-xl transition-all duration-300 border border-black/[0.06]"
                 >
                   Cancel
                 </button>

@@ -1,22 +1,19 @@
 @import "tailwindcss";
 
-/* Prevent overscroll behavior that causes white space */
+/* Prevent overscroll bounce */
 html {
   overscroll-behavior: none;
-  overflow-x: hidden;
 }
 
 body {
   overscroll-behavior: none;
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
-  background: #121212;
-  /* Material dark background */
+  background: #e8e5e0;
 }
 
-/* Ensure root container fills viewport */
+/* Root: fills viewport and clips horizontal overflow without blocking scroll */
 #root {
   min-height: 100vh;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
